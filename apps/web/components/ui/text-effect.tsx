@@ -237,12 +237,12 @@ export function TextEffect({
 
   const customStagger = hasTransition(variants?.container?.visible ?? {})
     ? (variants?.container?.visible as TargetAndTransition).transition
-      ?.staggerChildren
+        ?.staggerChildren
     : undefined;
 
   const customDelay = hasTransition(variants?.container?.visible ?? {})
     ? (variants?.container?.visible as TargetAndTransition).transition
-      ?.delayChildren
+        ?.delayChildren
     : undefined;
 
   const computedVariants = {

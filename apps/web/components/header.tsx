@@ -22,14 +22,14 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full bg-white/80 dark:bg-neutral-950/80 backdrop-blur-sm border-b">
+      <header className="sticky top-0 z-50 w-full bg-white/80 dark:bg-neutral-950/80 backdrop-blur-sm border-b h-13">
         <nav className="mx-auto flex w-full items-center justify-between px-4 sm:px-6 py-2">
           <div className="flex h-full items-center gap-5">
             <Link href="/" className="flex items-center gap-2.5 group shrink-0">
               <div className="flex size-6 items-center justify-center rounded-md bg-accent transition-transform duration-200 group-hover:scale-105">
                 <Code2 size={11} strokeWidth={2.5} />
               </div>
-              <span className="text-[13px] font-semibold tracking-tight">
+              <span className="text-sm font-semibold tracking-tight">
                 CodeArena
               </span>
             </Link>
@@ -43,7 +43,7 @@ export function Header() {
                     key={href}
                     href={href}
                     className={cn(
-                      "relative inline-flex h-8 items-center px-3 text-[13px] font-medium rounded-md transition-colors duration-150",
+                      "relative inline-flex h-8 items-center px-3 text-sm font-medium rounded-md transition-colors duration-150",
                       isActive
                         ? "text-foreground"
                         : "text-muted-foreground hover:text-foreground"
@@ -53,7 +53,7 @@ export function Header() {
                     {isActive && (
                       <motion.span
                         layoutId="nav-active-indicator"
-                        className="absolute bottom-0 inset-x-2 h-0.5 bg-primary rounded-full"
+                        className="absolute -bottom-2.5 inset-x-1.5 h-0.5 bg-primary rounded-full"
                         transition={{
                           type: "spring",
                           stiffness: 380,
@@ -148,7 +148,7 @@ export function Header() {
                           href={href}
                           onClick={() => setMobileOpen(false)}
                           className={cn(
-                            "flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-colors duration-150",
+                            "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150",
                             isActive
                               ? "bg-primary/10 text-primary"
                               : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
@@ -190,7 +190,7 @@ export function Header() {
                       <Link
                         href={href}
                         onClick={() => setMobileOpen(false)}
-                        className="flex items-center px-3 py-2.5 rounded-lg text-[13px] text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors duration-150"
+                        className="flex items-center px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors duration-150"
                       >
                         {label}
                       </Link>

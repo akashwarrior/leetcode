@@ -7,7 +7,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="min-h-screen w-full flex bg-background flex-col lg:flex-row">
+    <div className="min-h-svh w-full flex bg-background flex-col lg:flex-row">
       <Link
         href="/landing"
         prefetch={false}

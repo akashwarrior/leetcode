@@ -1,11 +1,6 @@
-"use client";
-
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { motion, useScroll, useMotionValueEvent } from "motion/react";
 import {
   Code2,
   ArrowRight,
@@ -127,7 +122,7 @@ function CodeSnippent() {
             </div>
           </div>
 
-          <div className="flex-1 flex flex-col hidden sm:flex flex-col">
+          <div className="flex-1 hidden sm:flex flex-col ">
             <div className="flex items-center justify-between px-4 h-9 border-b text-xs">
               <span className="font-medium">Code</span>
               <span>JavaScript</span>
@@ -217,7 +212,7 @@ function HeatmapMockup() {
         </span>
       </div>
       <div
-        className="grid gap-[3px]"
+        className="grid gap-0.75"
         style={{ gridTemplateColumns: "repeat(20, 1fr)" }}
       >
         {Array.from({ length: 140 }, (_, i) => {
@@ -280,80 +275,10 @@ function ContestMockup() {
   );
 }
 
-export default function LandingPage() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollY } = useScroll({
-    target: ref,
-    offset: ["start start", "end start"],
-  });
-  const [visible, setVisible] = useState<boolean>(false);
-
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    if (latest > 100) {
-      setVisible(true);
-    } else {
-      setVisible(false);
-    }
-  });
-
+export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
-      <motion.nav
-        ref={ref}
-        className="fixed inset-x-0 top-0 z-40 w-full"
-      >
-        <motion.div
-          initial={{
-            maxWidth: visible ? "1152px" : "1280px"
-          }}
-          animate={{
-            backdropFilter: visible ? "blur(10px)" : "none",
-            boxShadow: visible
-              ? "0 0 24px rgba(34, 42, 53, 0.06), 0 1px 1px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(34, 42, 53, 0.04), 0 0 4px rgba(34, 42, 53, 0.08), 0 16px 68px rgba(47, 48, 55, 0.05), 0 1px 0 rgba(255, 255, 255, 0.1) inset"
-              : "none",
-            width: visible ? "90%" : "100%",
-            y: visible ? 15 : 0,
-          }}
-          transition={{
-            type: "spring",
-            stiffness: 200,
-            damping: 50,
-          }}
-          className={cn(
-            "mx-auto w-full items-center justify-between rounded-full bg-transparent px-6 py-3 flex",
-            visible && "bg-white/80 dark:bg-neutral-950/80"
-          )}
-        >
-          <Link href="/" prefetch={false} className="flex items-center gap-2.5 group">
-            <div className="flex size-6 items-center justify-center rounded-md bg-border transition-transform duration-200 group-hover:scale-105">
-              <Code2 size={11} strokeWidth={2.5} />
-            </div>
-            <span className="text-sm font-semibold tracking-tight">
-              CodeArena
-            </span>
-          </Link>
-
-          <div className="flex items-center gap-1">
-            <ThemeToggle />
-
-            <Button asChild variant="ghost">
-              <Link href="/sign-in" prefetch={false}>
-                Sign in
-              </Link>
-            </Button>
-
-            <Link
-              href="/"
-              prefetch={false}
-              className="text-sm font-medium px-4 py-2 rounded-md gradient-primary text-white"
-            >
-              Get Started
-            </Link>
-          </div>
-        </motion.div>
-      </motion.nav>
-
-      <section className="relative pt-40 pb-8 px-6 overflow-hidden">
+      <section className="relative pt-24 pb-8 px-6 overflow-hidden">
         <div className="relative mx-auto max-w-250">
           <div className="text-center">
             <h1 className="text-[clamp(2.5rem,6vw,4.5rem)] font-medium tracking-tighter leading-[1.08] mb-5 animate-fade-in !delay-75">
@@ -365,21 +290,26 @@ export default function LandingPage() {
               Master algorithms, compete in contests, and track your growth.
               Built for developers who take practice seriously.
             </p>
-            <div className="flex items-center justify-center gap-3 animate-fade-in !delay-150">
-              <Button asChild className="gradient-primary text-white font-medium h-10">
-                <Link href="/" prefetch={false}>
-                  Start Practicing
-                  <ArrowRight size={14} className="ml-1.5" />
-                </Link>
-              </Button>
+            <div className="flex items-center justify-center gap-3 animate-fade-in !delay-150" >
+              <Button
+                className="gradient-primary text-white font-medium h-10"
+                nativeButton={false}
+                render={
+                  <Link href="/problems" prefetch={false}>
+                    Start Practicing
+                    <ArrowRight size={14} className="ml-1.5" />
+                  </Link>
+                }
+              />
 
               <Button
-                asChild
                 variant="outline"
                 className="h-10 px-6 font-medium"
-              >
-                <Link href="/sign-in" prefetch={false}>Sign in</Link>
-              </Button>
+                nativeButton={false}
+                render={
+                  <Link href="/sign-in" prefetch={false}>Sign in</Link>
+                }
+              />
             </div>
           </div>
 
@@ -387,7 +317,7 @@ export default function LandingPage() {
             <CodeSnippent />
           </div>
         </div>
-      </section>
+      </section >
 
       <section className="border-y border-border mt-20">
         <div className="mx-auto max-w-250 grid grid-cols-3 divide-x divide-border">
@@ -496,18 +426,19 @@ export default function LandingPage() {
             Join thousands of developers practicing daily.
           </p>
           <Button
-            asChild
             className="h-11 px-8 rounded-lg gradient-primary border-0 text-white text-sm font-medium"
-          >
-            <Link href="/" prefetch={false}>
-              Get Started <ArrowRight size={14} className="ml-1.5" />
-            </Link>
-          </Button>
+            nativeButton={false}
+            render={
+              <Link href="/problems" prefetch={false}>
+                Get Started <ArrowRight size={14} className="ml-1.5" />
+              </Link>
+            }
+          />
         </div>
       </section >
 
       <footer className="border-t border-border">
-        <div className="mx-auto max-w-7xl px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+        <div className="mx-auto max-w-7xl px-6 lg:px-0 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-2.5">
             <div className="size-5 rounded-md bg-foreground flex items-center justify-center">
               <Code2 size={10} className="text-background" strokeWidth={2.5} />
@@ -528,6 +459,6 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
-    </div>
+    </div >
   );
 }
