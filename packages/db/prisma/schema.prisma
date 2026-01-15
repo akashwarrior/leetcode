@@ -1,0 +1,264 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Contest {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String?  @db.Text
+  startTime   DateTime
+  endTime     DateTime
+  isHidden    Boolean  @default(true)
+
+  problems       ContestProblem[]
+  participations ContestParticipation[]
+  submissions    Submission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ContestProblem {
+  id     String @id @default(cuid())
+  order  String
+  points Int    @default(0)
+
+  contestId String
+  contest   Contest @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  problemId String
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([contestId, problemId])
+  @@unique([contestId, order])
+}
+
+model ContestParticipation {
+  id String @id @default(cuid())
+
+  score   Int  @default(0)
+  penalty Int  @default(0)
+  rank    Int?
+
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contestId String
+  contest   Contest @relation(fields: [contestId], references: [id], onDelete: Cascade)
+
+  registeredAt DateTime @default(now())
+
+  @@unique([userId, contestId])
+}
+
+enum SubmissionStatus {
+  PENDING
+  RUNNING
+  ACCEPTED
+  WRONG_ANSWER
+  TIME_LIMIT_EXCEEDED
+  MEMORY_LIMIT_EXCEEDED
+  RUNTIME_ERROR
+  COMPILATION_ERROR
+}
+
+enum Language {
+  CPP
+  JAVASCRIPT
+}
+
+model Submission {
+  id           String           @id @default(cuid())
+  language     Language
+  codeSnippet  String // s3 url 
+  status       SubmissionStatus @default(PENDING)
+  timeInMs     Int?
+  memoryInKb   Int?
+  errorMessage String?          @db.Text
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problemId String
+  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  contestId String?
+  contest   Contest? @relation(fields: [contestId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+}
+
+enum ProblemStatus {
+  ATTEMPTED
+  SOLVED
+}
+
+model UserProblem {
+  id        String @id @default(cuid())
+  userId    String
+  problemId String
+
+  status ProblemStatus
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model ProblemOfTheDay {
+  id String @id @default(cuid())
+
+  date DateTime @unique @db.Date
+
+  problemId String
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model Problem {
+  id                 String     @id @default(uuid())
+  slug               String     @unique
+  title              String
+  description        String     @db.Text
+  difficulty         Difficulty
+  isHidden           Boolean    @default(false)
+  timeLimitMs        Int
+  memoryLimitKb      Int
+  tags               Tag[]
+  defaultCodeSnippet String // s3 url
+  testCases          String // s3 url  (input, output, isHidden)
+  hints              String[]
+  totalSubmissions   Int        @default(0)
+  totalAccepted      Int        @default(0)
+
+  submissions      Submission[]
+  contests         ContestProblem[]
+  userProblems     UserProblem[]
+  problemOfTheDays ProblemOfTheDay[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Tag {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  problems Problem[]
+}
+
+model Activity {
+  id     String @id @default(cuid())
+  userId String
+
+  date            DateTime @db.Date
+  submissionCount Int      @default(1)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, date])
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model User {
+  id            String   @id
+  name          String
+  email         String
+  emailVerified Boolean  @default(false)
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  sessions       Session[]
+  accounts       Account[]
+  submissions    Submission[]
+  userProblems   UserProblem[]
+  participations ContestParticipation[]
+  activities     Activity[]
+
+  username     String  @unique
+  role         Role    @default(USER)
+  githubUrl    String?
+  streak       Int     @default(0)
+  globalRank   Int?
+  rating       Int?
+  solvedEasy   Int     @default(0)
+  solvedMedium Int     @default(0)
+  solvedHard   Int     @default(0)
+
+  @@unique([email])
+  @@map("user")
+}
+
+// ---- better auth generated
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
