@@ -1,11 +1,15 @@
 "use client";
 
-import Link from "next/link";
+import { mutate } from "swr";
 import { useState, ViewTransition } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { EyeIcon, EyeOffIcon, LoaderCircle } from "lucide-react";
+import { TextEffect } from "@/components/ui/text-effect";
+import { signUp } from "@/lib/auth-client";
+import { toast } from "sonner";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
 import {
   InputGroup,
   InputGroupAddon,
@@ -19,8 +23,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useRouter } from "next/navigation";
-import { TextEffect } from "@/components/ui/text-effect"
 
 const blurSlideVariants = {
   container: {
@@ -36,13 +38,13 @@ const blurSlideVariants = {
   item: {
     hidden: {
       opacity: 0,
-      filter: 'blur(10px) brightness(0%)',
+      filter: "blur(10px) brightness(0%)",
       y: 0,
     },
     visible: {
       opacity: 1,
       y: 0,
-      filter: 'blur(0px) brightness(100%)',
+      filter: "blur(0px) brightness(100%)",
       transition: {
         duration: 0.4,
       },
@@ -50,7 +52,7 @@ const blurSlideVariants = {
     exit: {
       opacity: 0,
       y: -30,
-      filter: 'blur(10px) brightness(0%)',
+      filter: "blur(10px) brightness(0%)",
       transition: {
         duration: 0.4,
       },
@@ -61,12 +63,39 @@ const blurSlideVariants = {
 export default function SignUpPage() {
   const router = useRouter();
   const [name, setName] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const handleSignUp = async (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { error, data } = await signUp.email({
+        email,
+        password,
+        name,
+        username,
+      });
+
+      if (error) {
+        toast.error(error.message ?? "Failed to create account");
+      }
+      if (data?.user) {
+        await mutate("session");
+        router.push("/");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -74,11 +103,9 @@ export default function SignUpPage() {
       <CardHeader className="text-center">
         <CardTitle>
           <TextEffect
-            className='text-2xl font-medium'
-            per='char'
+            className="text-2xl font-medium"
             variants={blurSlideVariants}
           >
-
             Create your account
           </TextEffect>
         </CardTitle>
@@ -100,6 +127,21 @@ export default function SignUpPage() {
                 type="text"
                 placeholder="John Doe"
                 required
+                disabled={isLoading}
+                className="h-10 rounded-lg"
+              />
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="username">Username</FieldLabel>
+              <Input
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                type="text"
+                placeholder="johndoe"
+                required
+                disabled={isLoading}
                 className="h-10 rounded-lg"
               />
             </Field>
@@ -114,6 +156,7 @@ export default function SignUpPage() {
                   type="email"
                   placeholder="name@example.com"
                   required
+                  disabled={isLoading}
                   className="h-10 rounded-lg"
                 />
               </Field>
@@ -130,6 +173,8 @@ export default function SignUpPage() {
                     type={showPassword ? "text" : "password"}
                     placeholder={showPassword ? "password" : "••••••••"}
                     required
+                    minLength={8}
+                    disabled={isLoading}
                     className="h-10 rounded-lg"
                   />
                   <InputGroupAddon align="inline-end">
@@ -137,6 +182,7 @@ export default function SignUpPage() {
                       type="button"
                       size="icon-sm"
                       variant="ghost"
+                      disabled={isLoading}
                       onClick={() => setShowPassword((prev) => !prev)}
                     >
                       {!showPassword ? (
@@ -147,6 +193,9 @@ export default function SignUpPage() {
                     </Button>
                   </InputGroupAddon>
                 </InputGroup>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Must be at least 8 characters
+                </p>
               </Field>
             </ViewTransition>
 
@@ -154,9 +203,14 @@ export default function SignUpPage() {
               <ViewTransition name="auth_submit">
                 <Button
                   type="submit"
+                  disabled={isLoading}
                   className="w-full gradient-primary text-white font-medium h-10 rounded-lg"
                 >
-                  Create Account
+                  {isLoading ? (
+                    <LoaderCircle className="size-4 animate-spin" />
+                  ) : (
+                    "Create Account"
+                  )}
                 </Button>
               </ViewTransition>
             </Field>
@@ -168,7 +222,7 @@ export default function SignUpPage() {
         <p className="text-sm text-muted-foreground m-auto">
           Already have an account?{" "}
           <span
-            onClick={() => router.replace("/sign-in")}
+            onClick={() => !isLoading && router.replace("/sign-in")}
             className="cursor-pointer font-medium text-primary hover:text-primary/80 transition-colors"
           >
             Sign in
