@@ -2,12 +2,11 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "next-themes";
-import { Toaster } from "@/components/ui/sonner"
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-
 const inter = Inter({
-  subsets: ['latin'],
+  subsets: ["latin"],
   weight: "variable",
   display: "swap",
   preload: true,
@@ -38,9 +37,7 @@ export default function RootLayout({
         >
           {children}
 
-          <Toaster
-            position="bottom-right"
-          />
+          <Toaster position="bottom-right" />
         </ThemeProvider>
       </body>
     </html>

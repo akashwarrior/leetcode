@@ -5,7 +5,10 @@ import { useTheme } from "next-themes";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { VariantProps } from "class-variance-authority";
 
-export function ThemeToggle({ size = "icon", variant = "ghost" }: VariantProps<typeof buttonVariants>) {
+export function ThemeToggle({
+  size = "icon",
+  variant = "ghost",
+}: VariantProps<typeof buttonVariants>) {
   const { setTheme, resolvedTheme } = useTheme();
 
   return (

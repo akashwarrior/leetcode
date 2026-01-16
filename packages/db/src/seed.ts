@@ -73,8 +73,16 @@ async function seedProblems(
         memoryLimitKb: 262_144,
         defaultCodeSnippet: "https://google.com",
         testCases: JSON.stringify([
-          { input: "sample input 1", output: "sample output 1", isHidden: false },
-          { input: "sample input 2", output: "sample output 2", isHidden: true },
+          {
+            input: "sample input 1",
+            output: "sample output 1",
+            isHidden: false,
+          },
+          {
+            input: "sample input 2",
+            output: "sample output 2",
+            isHidden: true,
+          },
         ]),
         hints: ["Hint 1", "Hint 2"],
         totalSubmissions: randomInt(1000),
@@ -102,10 +110,7 @@ async function seedDailyProblems(problemIds: string[]) {
   });
 }
 
-async function seedContests(
-  problemIds: string[],
-  count = CONTEST_COUNT,
-) {
+async function seedContests(problemIds: string[], count = CONTEST_COUNT) {
   for (let i = 0; i < count; i++) {
     const startTime = new Date();
     startTime.setUTCMinutes(0, 0, 0);

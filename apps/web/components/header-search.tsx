@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
 import { PROBLEM_LIST } from "@/lib/dummy-data";
 import { cn } from "@/lib/utils";
-import { Kbd } from "@/components/ui/kbd"
+import { Kbd } from "@/components/ui/kbd";
 import {
   Search,
   ArrowRight,
@@ -67,7 +67,10 @@ export function HeaderSearch() {
 
       <CommandDialog open={open} onOpenChange={setOpen}>
         <Command className="rounded-lg border-0" loop>
-          <CommandInput placeholder="Type a command or search..." className="text-sm" />
+          <CommandInput
+            placeholder="Type a command or search..."
+            className="text-sm"
+          />
           <CommandList className="max-h-95">
             <CommandEmpty className="py-8 text-center text-sm text-muted-foreground">
               No results found.
@@ -92,7 +95,10 @@ export function HeaderSearch() {
                   <link.icon size={14} className="text-muted-foreground/40" />
                   <span className="text-sm">{link.label}</span>
                   <CommandShortcut>
-                    <ArrowRight size={12} className="text-muted-foreground/20" />
+                    <ArrowRight
+                      size={12}
+                      className="text-muted-foreground/20"
+                    />
                   </CommandShortcut>
                 </CommandItem>
               ))}
@@ -108,14 +114,17 @@ export function HeaderSearch() {
                   onSelect={() => router.push(`/problems/${p.slug}`)}
                   className="gap-3 py-2 rounded-md"
                 >
-                  <FileText size={14} className="text-muted-foreground/40 shrink-0" />
+                  <FileText
+                    size={14}
+                    className="text-muted-foreground/40 shrink-0"
+                  />
                   <div className="flex-1 truncate text-sm">{p.title}</div>
                   <span
                     className={cn(
                       "text-[10px] font-medium shrink-0",
                       p.difficulty === "EASY" && "text-emerald-500",
                       p.difficulty === "MEDIUM" && "text-amber-500",
-                      p.difficulty === "HARD" && "text-rose-500"
+                      p.difficulty === "HARD" && "text-rose-500",
                     )}
                   >
                     {p.difficulty.toLowerCase()}

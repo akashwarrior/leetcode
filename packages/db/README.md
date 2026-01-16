@@ -31,13 +31,13 @@ pnpm migrate     # creates and applies a new migration
 
 ## Scripts
 
-| Script           | Description                                  |
-| ---------------- | -------------------------------------------- |
-| `pnpm generate`  | Regenerate the Prisma client after schema changes |
-| `pnpm migrate`   | Create and apply a new dev migration         |
-| `pnpm migrate:reset` | Reset the database and reapply all migrations |
-| `pnpm seed`      | Seed the database with sample data           |
-| `pnpm format`    | Auto-format the Prisma schema file           |
+| Script               | Description                                       |
+| -------------------- | ------------------------------------------------- |
+| `pnpm generate`      | Regenerate the Prisma client after schema changes |
+| `pnpm migrate`       | Create and apply a new dev migration              |
+| `pnpm migrate:reset` | Reset the database and reapply all migrations     |
+| `pnpm seed`          | Seed the database with sample data                |
+| `pnpm format`        | Auto-format the Prisma schema file                |
 
 ## Project Structure
 

@@ -44,25 +44,27 @@ const SECTIONS = [
 
 const TESTIMONIALS = [
   {
-    quote: "CodeArena helped me land my dream job at Google. The problem quality and tracking is unmatched.",
+    quote:
+      "CodeArena helped me land my dream job at Google. The problem quality and tracking is unmatched.",
     name: "Sarah Chen",
     role: "Software Engineer",
     company: "Google",
   },
   {
-    quote: "The cleanest practice platform I've ever used. It's like Linear but for competitive programming.",
+    quote:
+      "The cleanest practice platform I've ever used. It's like Linear but for competitive programming.",
     name: "Raj Patel",
     role: "Senior Developer",
     company: "Microsoft",
   },
   {
-    quote: "Weekly contests keep me sharp and motivated. The rating system is perfectly calibrated.",
+    quote:
+      "Weekly contests keep me sharp and motivated. The rating system is perfectly calibrated.",
     name: "Emily Rodriguez",
     role: "ML Engineer",
     company: "Meta",
   },
 ];
-
 
 function CodeSnippent() {
   const CODE_SNIPPET = `<span class="text-violet-400">function</span> <span class="text-blue-400">twoSum</span><span>(nums, target) {</span>
@@ -94,7 +96,9 @@ function CodeSnippent() {
         <div className="flex h-85">
           <div className="sm:w-1/2 border-r border-border p-5 overflow-hidden">
             <div className="flex items-center gap-2.5 mb-4">
-              <span className="text-sm font-semibold tracking-tight">1. Two Sum</span>
+              <span className="text-sm font-semibold tracking-tight">
+                1. Two Sum
+              </span>
               <span className="text-[10px] font-medium text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-md">
                 Easy
               </span>
@@ -111,7 +115,9 @@ function CodeSnippent() {
                 <p className="text-muted-foreground/60 text-[9px] font-sans font-medium uppercase tracking-widest mb-1">
                   Input
                 </p>
-                <p className="text-foreground/80">nums = [2,7,11,15], target = 9</p>
+                <p className="text-foreground/80">
+                  nums = [2,7,11,15], target = 9
+                </p>
               </div>
               <div>
                 <p className="text-muted-foreground/60 text-[9px] font-sans font-medium uppercase tracking-widest mb-1">
@@ -158,7 +164,11 @@ function ProblemMockup() {
   const problems = [
     { title: "Two Sum", diff: "Easy", solved: true },
     { title: "Add Two Numbers", diff: "Medium", solved: true },
-    { title: "Longest Substring Without Repeating Characters", diff: "Medium", solved: false },
+    {
+      title: "Longest Substring Without Repeating Characters",
+      diff: "Medium",
+      solved: false,
+    },
     { title: "Median of Two Sorted Arrays", diff: "Hard", solved: false },
     { title: "Reverse Linked List", diff: "Easy", solved: true },
   ];
@@ -187,7 +197,7 @@ function ProblemMockup() {
               "text-xs font-medium shrink-0 ml-3",
               p.diff === "Easy" && "text-emerald-500",
               p.diff === "Medium" && "text-amber-500",
-              p.diff === "Hard" && "text-rose-500"
+              p.diff === "Hard" && "text-rose-500",
             )}
           >
             {p.diff}
@@ -256,18 +266,25 @@ function ContestMockup() {
             key={e.rank}
             className={cn(
               "flex items-center justify-between py-2 px-3 rounded-lg text-sm",
-              e.user === "you" && "bg-primary/5 border border-primary/10"
+              e.user === "you" && "bg-primary/5 border border-primary/10",
             )}
           >
             <div className="flex items-center gap-2.5">
               <span className="text-xs text-muted-foreground w-4 text-center tabular-nums font-mono">
                 {e.badge || e.rank}
               </span>
-              <span className={cn("font-medium", e.user === "you" && "text-primary")}>
+              <span
+                className={cn(
+                  "font-medium",
+                  e.user === "you" && "text-primary",
+                )}
+              >
                 {e.user}
               </span>
             </div>
-            <span className="text-xs text-muted-foreground font-mono">{e.score}</span>
+            <span className="text-xs text-muted-foreground font-mono">
+              {e.score}
+            </span>
           </div>
         ))}
       </div>
@@ -290,7 +307,7 @@ export default function Landing() {
               Master algorithms, compete in contests, and track your growth.
               Built for developers who take practice seriously.
             </p>
-            <div className="flex items-center justify-center gap-3 animate-fade-in !delay-150" >
+            <div className="flex items-center justify-center gap-3 animate-fade-in !delay-150">
               <Button
                 className="gradient-primary text-white font-medium h-10"
                 nativeButton={false}
@@ -307,7 +324,9 @@ export default function Landing() {
                 className="h-10 px-6 font-medium"
                 nativeButton={false}
                 render={
-                  <Link href="/sign-in" prefetch={false}>Sign in</Link>
+                  <Link href="/sign-in" prefetch={false}>
+                    Sign in
+                  </Link>
                 }
               />
             </div>
@@ -317,7 +336,7 @@ export default function Landing() {
             <CodeSnippent />
           </div>
         </div>
-      </section >
+      </section>
 
       <section className="border-y border-border mt-20">
         <div className="mx-auto max-w-250 grid grid-cols-3 divide-x divide-border">
@@ -326,7 +345,10 @@ export default function Landing() {
             { value: "150K+", label: "Active Users" },
             { value: "Weekly", label: "Contests" },
           ].map((s) => (
-            <div key={s.label} className="flex flex-col items-center py-8 sm:py-10">
+            <div
+              key={s.label}
+              className="flex flex-col items-center py-8 sm:py-10"
+            >
               <span className="text-2xl sm:text-3xl font-medium tracking-tight tabular-nums">
                 {s.value}
               </span>
@@ -344,7 +366,7 @@ export default function Landing() {
             key={section.num}
             className={cn(
               "flex flex-col gap-10 lg:flex-row lg:items-center",
-              idx % 2 === 1 && "lg:flex-row-reverse"
+              idx % 2 === 1 && "lg:flex-row-reverse",
             )}
           >
             <div className="lg:w-[45%]">
@@ -377,11 +399,10 @@ export default function Landing() {
               {idx === 2 && <HeatmapMockup />}
             </div>
           </div>
-        ))
-        }
+        ))}
       </section>
 
-      <section className="border-t border-border py-20" >
+      <section className="border-t border-border py-20">
         <div className="mx-auto max-w-250 px-6">
           <div className="mb-12">
             <span className="text-xs text-muted-foreground font-medium tracking-wide">
@@ -435,7 +456,7 @@ export default function Landing() {
             }
           />
         </div>
-      </section >
+      </section>
 
       <footer className="border-t border-border">
         <div className="mx-auto max-w-7xl px-6 lg:px-0 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
@@ -459,6 +480,6 @@ export default function Landing() {
           </div>
         </div>
       </footer>
-    </div >
+    </div>
   );
 }
