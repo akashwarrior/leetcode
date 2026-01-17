@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
-import { PROBLEM_LIST } from "@/lib/dummy-data";
 import { cn } from "@/lib/utils";
 import { Kbd } from "@/components/ui/kbd";
+import { useProblems } from "@/hooks/use-problems";
 import {
   Search,
   ArrowRight,
@@ -29,6 +29,7 @@ import {
 
 export function HeaderSearch() {
   const [open, setOpen] = useState(false);
+  const { problems, search, setSearch } = useProblems();
   const router = useRouter();
 
   useEffect(() => {
@@ -65,11 +66,21 @@ export function HeaderSearch() {
         <Search size={16} />
       </Button>
 
-      <CommandDialog open={open} onOpenChange={setOpen}>
+      <CommandDialog
+        open={open}
+        onOpenChange={(val) => {
+          setOpen(val);
+          if (!val) {
+            setSearch("");
+          }
+        }}
+      >
         <Command className="rounded-lg border-0" loop>
           <CommandInput
-            placeholder="Type a command or search..."
+            value={search}
+            onValueChange={setSearch}
             className="text-sm"
+            placeholder="Type a command or search..."
           />
           <CommandList className="max-h-95">
             <CommandEmpty className="py-8 text-center text-sm text-muted-foreground">
@@ -107,7 +118,7 @@ export function HeaderSearch() {
             <CommandSeparator />
 
             <CommandGroup heading="Problems">
-              {PROBLEM_LIST.slice(0, 6).map((p) => (
+              {problems.map((p) => (
                 <CommandItem
                   key={p.id}
                   value={p.title}
