@@ -1,48 +1,42 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useMemo, useState, useRef } from "react";
-import { ACTIVITY_HEATMAP } from "@/lib/dummy-data";
-import { AnimatePresence } from "motion/react";
-import { motion } from "motion/react";
+import { useMemo, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import type { Activity } from "@codearena/db";
 
-const DAYS = ["", "Mon", "", "Wed", "", "Fri", ""];
+const DAYS = ["", "Mon", "", "Wed", "", "Fri", ""] as const;
 const LEVELS = [
-  {
-    min: 0,
-    max: 0,
-    bg: "bg-primary/5 dark:bg-white/[0.03]",
-    label: "No activity",
-  },
+  { min: 0, max: 0, bg: "bg-primary/3", label: "No activity" },
   { min: 1, max: 1, bg: "bg-emerald-500/25", label: "1 submission" },
   { min: 2, max: 2, bg: "bg-emerald-500/40", label: "2 submissions" },
   { min: 3, max: 3, bg: "bg-emerald-500/60", label: "3 submissions" },
   { min: 4, max: Infinity, bg: "bg-emerald-500", label: "4+ submissions" },
-];
+] as const;
 
 function getLevel(count: number) {
   return LEVELS.find((l) => count >= l.min && count <= l.max) ?? LEVELS[0];
 }
 
-function getWeeks(data: typeof ACTIVITY_HEATMAP) {
-  const countByIndex = new Map(data.map((d) => [d.day, d.count]));
+function getWeeks(data: Pick<Activity, "date" | "submissionCount">[]) {
+  const countByIndex = new Map(
+    data.map((d) => [d.date.toISOString().split("T")[0], d.submissionCount]),
+  );
   const today = new Date();
-  const weeks: { date: Date; count: number }[][] = [];
+  const weeks: Pick<Activity, "date" | "submissionCount">[][] = [];
 
-  const start = new Date(today);
-  start.setDate(start.getDate() - 363);
-  start.setDate(start.getDate() - start.getDay());
+  const cursor = new Date(today);
+  cursor.setDate(cursor.getDate() - 363);
+  cursor.setDate(cursor.getDate() - cursor.getDay());
 
-  let week: { date: Date; count: number }[] = [];
-  const cursor = new Date(start);
-  let dayIndex = 1;
+  let week: Pick<Activity, "date" | "submissionCount">[] = [];
 
   while (cursor <= today) {
+    const dateStr = cursor.toISOString().split("T")[0];
     week.push({
       date: new Date(cursor),
-      count: countByIndex.get(dayIndex) ?? 0,
+      submissionCount: countByIndex.get(dateStr) ?? 0,
     });
-    dayIndex++;
     if (week.length === 7) {
       weeks.push(week);
       week = [];
@@ -73,9 +67,12 @@ const gap = 2;
 const dayLabelWidth = 28;
 const weekWidth = cellSize + gap;
 
-export function ActivityHeatmap() {
-  const weeks = useMemo(() => getWeeks(ACTIVITY_HEATMAP), []);
-  const containerRef = useRef<HTMLDivElement>(null);
+type ActivityHeatmapProps = {
+  data?: Pick<Activity, "date" | "submissionCount">[];
+};
+
+export function ActivityHeatmap({ data = [] }: ActivityHeatmapProps) {
+  const weeks = useMemo(() => getWeeks(data), [data]);
   const [tooltip, setTooltip] = useState<{
     date: string;
     count: number;
@@ -84,24 +81,28 @@ export function ActivityHeatmap() {
   } | null>(null);
 
   const totalSubmissions = useMemo(
-    () => ACTIVITY_HEATMAP.reduce((s, d) => s + d.count, 0),
-    [],
+    () => data.reduce((sum, day) => sum + day.submissionCount, 0),
+    [data],
   );
 
   const maxStreak = useMemo(() => {
-    let max = 0,
-      cur = 0;
-    const sorted = [...ACTIVITY_HEATMAP].sort((a, b) => a.day - b.day);
-    for (const d of sorted) {
-      if (d.count > 0) {
-        cur++;
-        max = Math.max(max, cur);
+    let max = 0;
+    let current = 0;
+    const sorted = [...data].sort(
+      (left, right) => left.date.getTime() - right.date.getTime(),
+    );
+
+    for (const day of sorted) {
+      if (day.submissionCount > 0) {
+        current += 1;
+        max = Math.max(max, current);
       } else {
-        cur = 0;
+        current = 0;
       }
     }
+
     return max;
-  }, []);
+  }, [data]);
 
   const monthLabels = useMemo(() => {
     const labels: { label: string; weekIndex: number }[] = [];
@@ -116,101 +117,95 @@ export function ActivityHeatmap() {
     return labels;
   }, [weeks]);
 
-
   return (
-    <div className="gap-3 flex flex-col">
-      <div className="flex items-center justify-between">
-        <div className="flex gap-5 text-xs text-muted-foreground">
-          <span>
-            <span className="font-semibold text-foreground">
-              {totalSubmissions}
-            </span>{" "}
-            submissions
-          </span>
-          <span>
-            Max streak:{" "}
-            <span className="font-semibold text-foreground">
-              {maxStreak}
-            </span>{" "}
-            days
-          </span>
-        </div>
+    <div className="gap-3 flex flex-col overflow-hidden">
+      <div className="flex gap-5 text-xs text-muted-foreground">
+        <span>
+          <span className="font-semibold text-foreground">
+            {totalSubmissions}
+          </span>{" "}
+          submissions
+        </span>
+
+        <span>
+          Max streak:{" "}
+          <span className="font-semibold text-foreground">{maxStreak}</span>{" "}
+          days
+        </span>
       </div>
 
-      <div className="overflow-x-auto" ref={containerRef}>
-        <div className="relative min-w-fit">
+      <div className="relative">
+        <div
+          className="flex pl-7 mb-1.5 h-3"
+          style={{ width: `${dayLabelWidth + weeks.length * weekWidth}px` }}
+        >
+          {monthLabels.map(({ label, weekIndex }, i) => {
+            return (
+              <span
+                key={i}
+                className="absolute text-[10px] text-muted-foreground/70 font-medium"
+                style={{
+                  left: `${dayLabelWidth + weekIndex * weekWidth}px`,
+                  transform: "translateX(0)",
+                }}
+              >
+                {label}
+              </span>
+            );
+          })}
+        </div>
+
+        <div className="flex overflow-x-auto overflow-hidden">
           <div
-            className="flex pl-7 mb-1.5 h-3"
-            style={{ width: `${dayLabelWidth + weeks.length * weekWidth}px` }}
+            className="flex flex-col justify-around text-[9px] text-muted-foreground/40 leading-none font-medium"
+            style={{
+              width: `${dayLabelWidth}px`,
+              height: `${7 * cellSize + 6 * gap}px`,
+            }}
           >
-            {monthLabels.map(({ label, weekIndex }, i) => {
-              return (
-                <span
-                  key={i}
-                  className="absolute text-[10px] text-muted-foreground/50 font-medium"
-                  style={{
-                    left: `${dayLabelWidth + weekIndex * weekWidth}px`,
-                    transform: "translateX(0)",
-                  }}
-                >
-                  {label}
-                </span>
-              );
-            })}
+            {DAYS.map((d, i) => (
+              <div key={i} className="text-right pr-1.5">
+                {d}
+              </div>
+            ))}
           </div>
 
-          <div className="flex">
-            <div
-              className="flex flex-col justify-around text-[9px] text-muted-foreground/40 leading-none font-medium"
-              style={{
-                width: `${dayLabelWidth}px`,
-                height: `${7 * cellSize + 6 * gap}px`,
-              }}
-            >
-              {DAYS.map((d, i) => (
-                <div key={i} className="text-right pr-1.5">
-                  {d}
-                </div>
-              ))}
-            </div>
-
-            <div className="flex gap-0.5">
-              {weeks.map((week, wi) => (
-                <div key={wi} className="flex flex-col gap-0.5">
-                  {week.map((day, idx) => {
-                    const level = getLevel(day.count);
-                    return (
-                      <div
-                        key={idx}
-                        className={cn(
-                          "rounded-xs cursor-pointer transition-transform duration-150 hover:scale-110 size-3",
-                          level.bg,
-                        )}
-                        onMouseEnter={(e) => {
-                          const rect = e.currentTarget.getBoundingClientRect();
-                          setTooltip({
-                            date: day.date.toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric",
-                              year: "numeric",
-                            }),
-                            count: day.count,
-                            x: rect.left + rect.width / 2,
-                            y: rect.top - 8,
-                          });
-                        }}
-                        onMouseLeave={() => setTooltip(null)}
-                      />
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
+          <div className="flex gap-0.5">
+            {weeks.map((week, wi) => (
+              <div key={wi} className="flex flex-col gap-0.5">
+                {week.map(({ date, submissionCount }, idx) => {
+                  const level = getLevel(submissionCount);
+                  return (
+                    <div
+                      key={idx}
+                      className={cn(
+                        "rounded-xs cursor-pointer transition-transform duration-150 hover:scale-110 size-3",
+                        level.bg,
+                      )}
+                      onMouseEnter={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        setTooltip({
+                          date: date.toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          }),
+                          count: submissionCount,
+                          x: rect.left + rect.width / 2,
+                          y: rect.top - 8,
+                        });
+                      }}
+                      onMouseLeave={() => setTooltip(null)}
+                    />
+                  );
+                })}
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      <div className="flex items-center justify-end gap-1.5 text-[10px] text-muted-foreground/50">
+      <div className="flex items-center justify-end gap-1.5 text-[10px] text-muted-foreground/70">
         <span className="mr-0.5 font-medium">Less</span>
         {LEVELS.map((l, i) => (
           <div
@@ -235,11 +230,14 @@ export function ActivityHeatmap() {
             }}
           >
             <div className="flex items-center gap-2">
-              <span className="font-semibold tabular-nums">{tooltip.count}</span>
+              <span className="font-semibold tabular-nums">
+                {tooltip.count}
+              </span>
               <span className="text-muted-foreground">
                 submission{tooltip.count !== 1 ? "s" : ""}
               </span>
             </div>
+
             <div className="text-muted-foreground/60 text-[10px] mt-0.5">
               {tooltip.date}
             </div>

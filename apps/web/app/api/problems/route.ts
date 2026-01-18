@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
       orderBy: [{ title: "asc" }],
       skip,
       take: Math.min(take, 50),
-      ...problemSelect,
+      select: problemSelect,
     }),
 
     auth.api.getSession({

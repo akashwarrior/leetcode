@@ -184,7 +184,7 @@ export function ProblemList() {
               key={problem.id}
               prefetch={false}
               href={`/problems/${problem.slug}`}
-              className="group flex flex-wrap gap-2 items-center sm:grid sm:grid-cols-[50px_1fr_90px_140px_70px] sm:items-center sm:gap-0 px-4 py-3 sm:py-2.5 border-b border-border last:border-0 hover:bg-muted/30 dark:hover:bg-white/[0.03] transition-colors"
+              className="group flex flex-wrap gap-2 items-center sm:grid sm:grid-cols-[50px_1fr_90px_140px_70px] sm:items-center sm:gap-0 px-4 py-3 sm:py-2.5 border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
             >
               <div className="flex items-center gap-3 sm:contents w-full">
                 <StatusIcon status={problem.status} />
@@ -195,14 +195,13 @@ export function ProblemList() {
 
               <span
                 className={cn(
-                  "text-[11px] font-medium",
+                  "text-[11px] font-medium capitalize",
                   problem.difficulty === "EASY" && "text-emerald-500",
                   problem.difficulty === "MEDIUM" && "text-amber-500",
                   problem.difficulty === "HARD" && "text-rose-500",
                 )}
               >
-                {problem.difficulty?.[0] +
-                  problem.difficulty?.slice(1).toLowerCase()}
+                {problem.difficulty?.toLowerCase()}
               </span>
 
               <div className="flex items-center gap-1.5 overflow-x-auto w-3/5 sm:w-full [scrollbar-width:none]">
