@@ -68,10 +68,10 @@ const dayLabelWidth = 28;
 const weekWidth = cellSize + gap;
 
 type ActivityHeatmapProps = {
-  data?: Pick<Activity, "date" | "submissionCount">[];
+  data: Pick<Activity, "date" | "submissionCount">[];
 };
 
-export function ActivityHeatmap({ data = [] }: ActivityHeatmapProps) {
+export function ActivityHeatmap({ data }: ActivityHeatmapProps) {
   const weeks = useMemo(() => getWeeks(data), [data]);
   const [tooltip, setTooltip] = useState<{
     date: string;

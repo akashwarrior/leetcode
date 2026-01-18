@@ -1,15 +1,30 @@
-import { notFound } from "next/navigation";
-import { CURRENT_USER } from "@/lib/dummy-data";
 import { ProfileOverview } from "@/components/profile-overview";
+import { prisma } from "@codearena/db";
+import { notFound } from "next/navigation";
 
 export default async function UserProfilePage({
   params,
 }: {
   params: Promise<{ username: string }>;
 }) {
-  // if ((await params).username !== CURRENT_USER.userName) {
-  //   notFound();
-  // }
+  const { username } = await params;
 
-  return <ProfileOverview />;
+  const user = await prisma.user.findFirst({
+    where: {
+      username: username,
+    },
+    include: {
+      _count: {
+        select: {
+          participations: true,
+        },
+      },
+    },
+  });
+
+  if (!user) {
+    notFound();
+  }
+
+  return <ProfileOverview user={user} />;
 }

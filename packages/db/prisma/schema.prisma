@@ -204,7 +204,7 @@ model User {
   githubUrl    String?
   streak       Int     @default(0)
   globalRank   Int?
-  rating       Int?
+  rating       Int     @default(0)
   solvedEasy   Int     @default(0)
   solvedMedium Int     @default(0)
   solvedHard   Int     @default(0)

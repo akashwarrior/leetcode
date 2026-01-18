@@ -1,10 +1,9 @@
-"use client";
-
+import { prisma, type User } from "@codearena/db";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ActivityHeatmap } from "@/components/activity-heatmap";
-import { CURRENT_USER, PROBLEM_LIST } from "@/lib/dummy-data";
+import { getProblemTotals } from "@/lib/db/queries";
 import {
   Trophy,
   CalendarClock,
@@ -13,56 +12,31 @@ import {
   Zap,
   MapPin,
   LinkIcon,
-  Github,
   Target,
   TrendingUp,
   MessageSquare,
+  GiftIcon,
 } from "lucide-react";
+import Image from "next/image";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
-const attemptedCount = PROBLEM_LIST.filter(
-  (p) => p.status === "ATTEMPTED"
-).length;
-const easy = PROBLEM_LIST.filter((p) => p.difficulty === "EASY").length;
-const medium = PROBLEM_LIST.filter((p) => p.difficulty === "MEDIUM").length;
-const hard = PROBLEM_LIST.filter((p) => p.difficulty === "HARD").length;
-const totalProblems = PROBLEM_LIST.length;
-const easySolved = 1,
-  mediumSolved = 2,
-  hardSolved = 1;
-const totalSolved = easySolved + mediumSolved + hardSolved;
+type DonutChartProps = {
+  easySolved: number;
+  mediumSolved: number;
+  hardSolved: number;
+  totalProblems: number;
+};
 
-const achievements = [
-  {
-    label: "First Solve",
-    desc: "Solved your first problem",
-    icon: Star,
-    earned: true,
-    color: "text-amber-500",
-    bg: "bg-amber-500/10",
-  },
-  {
-    label: "Week Streak",
-    desc: "7-day solving streak",
-    icon: Zap,
-    earned: true,
-    color: "text-primary",
-    bg: "bg-primary/10",
-  },
-  {
-    label: "Century",
-    desc: "Solve 100 problems",
-    icon: Award,
-    earned: false,
-    color: "text-emerald-500",
-    bg: "bg-emerald-500/10",
-  },
-];
-
-function DonutChart() {
+function DonutChart({
+  easySolved,
+  mediumSolved,
+  hardSolved,
+  totalProblems,
+}: DonutChartProps) {
   const radius = 44;
   const strokeWidth = 7;
   const circumference = 2 * Math.PI * radius;
-  const total = totalProblems;
   const segments = [
     { count: easySolved, color: "#22c55e" },
     { count: mediumSolved, color: "#f59e0b" },
@@ -70,7 +44,7 @@ function DonutChart() {
   ];
   let offset = 0;
   const arcs = segments.map((seg) => {
-    const fraction = seg.count / total;
+    const fraction = seg.count / totalProblems;
     const dash = circumference * fraction;
     const gap = circumference - dash;
     const currentOffset = offset;
@@ -112,44 +86,125 @@ function DonutChart() {
         ))}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-2xl font-bold tabular-nums">{totalSolved}</span>
-        <span className="text-[10px] text-muted-foreground font-medium">solved</span>
+        <span className="text-2xl font-bold tabular-nums">
+          {easySolved + mediumSolved + hardSolved}
+        </span>
+        <span className="text-[10px] text-muted-foreground font-medium">
+          solved
+        </span>
       </div>
     </div>
   );
 }
 
-export function ProfileOverview() {
+export async function ProfileOverview({
+  user,
+}: {
+  user: User & {
+    _count: {
+      participations: number;
+    };
+  };
+}) {
+  const totalSolved = user.solvedEasy + user.solvedMedium + user.solvedHard;
+
+  const [problemTotals, attemptedCount, session] = await Promise.all([
+    getProblemTotals(),
+    prisma.submission.count({
+      where: {
+        userId: user.id,
+        status: {
+          not: "ACCEPTED",
+        },
+      },
+    }),
+    auth.api.getSession({ headers: await headers() }),
+  ]);
+
+  const { easy, hard, medium, total: totalProblems } = problemTotals;
+
+  const achievements = [
+    {
+      label: "First Solve",
+      desc: "Solved your first problem",
+      icon: Star,
+      earned: totalSolved > 0,
+      color: "text-amber-500",
+      bg: "bg-amber-500/10",
+    },
+    {
+      label: "Week Streak",
+      desc: "7-day solving streak",
+      icon: Zap,
+      earned: totalSolved > 6,
+      color: "text-primary",
+      bg: "bg-primary/10",
+    },
+    {
+      label: "Century",
+      desc: "Solve 100 problems",
+      icon: Award,
+      earned: totalSolved > 99,
+      color: "text-emerald-500",
+      bg: "bg-emerald-500/10",
+    },
+  ] as const;
+
   return (
     <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
-      {/* Left sidebar */}
       <div className="space-y-4">
-        {/* User card */}
         <div className="surface-card rounded-2xl p-6 text-center">
-          <div className="mx-auto flex size-20 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 text-2xl font-bold text-primary">
-            {CURRENT_USER.name[0]}
+          <div className="mx-auto flex size-20 items-center justify-center rounded-2xl bg-linear-to-br from-primary/20 text-2xl font-bold text-primary relative overflow-hidden">
+            {user.image ? (
+              <Image
+                width={100}
+                height={100}
+                alt="profile"
+                loading="eager"
+                src={user.image}
+              />
+            ) : (
+              user.name[0]
+            )}
           </div>
-          <h1 className="mt-4 text-lg font-bold tracking-tight">{CURRENT_USER.name}</h1>
-          <p className="text-sm text-muted-foreground">
-            @{CURRENT_USER.userName}
-          </p>
-          <Link href="/settings">
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-5 w-full rounded-xl text-xs font-medium h-9"
-            >
-              Edit Profile
-            </Button>
-          </Link>
+          <h1 className="mt-4 text-lg font-bold tracking-tight">{user.name}</h1>
+          <p className="text-sm text-muted-foreground">@{user.username}</p>
+
+          {session?.user.id === user.id && (
+            <Link href="/settings">
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-5 w-full rounded-xl text-xs font-medium h-9"
+              >
+                Edit Profile
+              </Button>
+            </Link>
+          )}
         </div>
 
-        {/* Info links */}
         <div className="surface-card rounded-2xl p-5 space-y-3.5">
           {[
-            { icon: MapPin, label: "India" },
-            { icon: LinkIcon, label: "akashgupta.tech", link: true },
-            { icon: Github, label: "akashwarrior", link: true },
+            // { icon: MapPin, label: "India" },
+            { icon: CalendarClock, label: `${user.streak} day streak` },
+            {
+              icon: () => (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  x="0px"
+                  y="0px"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 30 30"
+                  className="-ml-1"
+                >
+                  <path d="M15,3C8.373,3,3,8.373,3,15c0,5.623,3.872,10.328,9.092,11.63C12.036,26.468,12,26.28,12,26.047v-2.051 c-0.487,0-1.303,0-1.508,0c-0.821,0-1.551-0.353-1.905-1.009c-0.393-0.729-0.461-1.844-1.435-2.526 c-0.289-0.227-0.069-0.486,0.264-0.451c0.615,0.174,1.125,0.596,1.605,1.222c0.478,0.627,0.703,0.769,1.596,0.769 c0.433,0,1.081-0.025,1.691-0.121c0.328-0.833,0.895-1.6,1.588-1.962c-3.996-0.411-5.903-2.399-5.903-5.098 c0-1.162,0.495-2.286,1.336-3.233C9.053,10.647,8.706,8.73,9.435,8c1.798,0,2.885,1.166,3.146,1.481C13.477,9.174,14.461,9,15.495,9 c1.036,0,2.024,0.174,2.922,0.483C18.675,9.17,19.763,8,21.565,8c0.732,0.731,0.381,2.656,0.102,3.594 c0.836,0.945,1.328,2.066,1.328,3.226c0,2.697-1.904,4.684-5.894,5.097C18.199,20.49,19,22.1,19,23.313v2.734 c0,0.104-0.023,0.179-0.035,0.268C23.641,24.676,27,20.236,27,15C27,8.373,21.627,3,15,3z"></path>
+                </svg>
+              ),
+              label: user.githubUrl ?? "Not Linked",
+              link: user.githubUrl,
+            },
+            { icon: Trophy, label: user.rating + " Rating" },
           ].map((item, i) => (
             <div
               key={i}
@@ -163,7 +218,7 @@ export function ProfileOverview() {
                 className={cn(
                   "truncate",
                   item.link &&
-                  "hover:text-primary cursor-pointer transition-colors"
+                    "hover:text-primary cursor-pointer transition-colors",
                 )}
               >
                 {item.label}
@@ -172,61 +227,61 @@ export function ProfileOverview() {
           ))}
         </div>
 
-        {/* Stats grid */}
-        <div className="surface-card rounded-2xl p-5">
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              {
-                label: "Rank",
-                value: `#${CURRENT_USER.rank.toLocaleString()}`,
-                icon: Trophy,
-                color: "text-amber-500",
-                bg: "bg-amber-500/10",
-              },
-              {
-                label: "Contests",
-                value: `${CURRENT_USER.contests}`,
-                icon: CalendarClock,
-                color: "text-primary",
-                bg: "bg-primary/10",
-              },
-            ].map((s) => (
+        <div className="surface-card rounded-2xl p-5 grid grid-cols-2 gap-3">
+          {[
+            {
+              label: "Rank",
+              value: `#${user.globalRank ?? "N/A"}`,
+              icon: Trophy,
+              color: "text-amber-500",
+              bg: "bg-amber-500/10",
+            },
+            {
+              label: "Contests",
+              value: `${user._count.participations}`,
+              icon: CalendarClock,
+              color: "text-primary",
+              bg: "bg-primary/10",
+            },
+          ].map((s) => (
+            <div
+              key={s.label}
+              className="text-center p-3.5 rounded-xl bg-border/30"
+            >
               <div
-                key={s.label}
-                className="text-center p-3.5 rounded-xl bg-muted/30"
+                className={cn(
+                  "mx-auto flex size-8 items-center justify-center rounded-lg mb-2",
+                  s.bg,
+                )}
               >
-                <div className={cn("mx-auto flex size-8 items-center justify-center rounded-lg mb-2", s.bg)}>
-                  <s.icon size={15} className={s.color} />
-                </div>
-                <p className="text-lg font-bold leading-none tabular-nums">
-                  {s.value}
-                </p>
-                <p className="text-[10px] text-muted-foreground mt-1.5 font-medium uppercase tracking-wider">
-                  {s.label}
-                </p>
+                <s.icon size={15} className={s.color} />
               </div>
-            ))}
-          </div>
+              <p className="text-lg font-bold leading-none tabular-nums">
+                {s.value}
+              </p>
+              <p className="text-[10px] text-muted-foreground mt-1.5 font-medium uppercase tracking-wider">
+                {s.label}
+              </p>
+            </div>
+          ))}
         </div>
 
-        {/* Achievements */}
         <div className="surface-card rounded-2xl p-5">
-          <h2 className="section-label mb-4">Achievements</h2>
-          <div className="space-y-2">
+          <h2 className="section-label mb-5 ml-1">Achievements</h2>
+
+          <div className="space-y-6">
             {achievements.map((a) => (
               <div
                 key={a.label}
                 className={cn(
-                  "flex items-center gap-3 rounded-xl p-3 transition-all duration-200",
-                  a.earned
-                    ? "bg-muted/30 hover:bg-muted/50"
-                    : "opacity-25"
+                  "flex items-center gap-3 rounded-xl transition-all duration-200",
+                  a.earned ? "bg-muted/30 hover:bg-muted/50" : "opacity-25",
                 )}
               >
                 <div
                   className={cn(
                     "flex size-9 items-center justify-center rounded-lg shrink-0",
-                    a.bg
+                    a.bg,
                   )}
                 >
                   <a.icon size={15} className={a.color} />
@@ -245,9 +300,7 @@ export function ProfileOverview() {
         </div>
       </div>
 
-      {/* Main content */}
       <div className="space-y-5">
-        {/* Solved problems */}
         <div className="surface-card rounded-2xl p-6">
           <div className="flex items-center gap-2.5 mb-6">
             <div className="flex size-7 items-center justify-center rounded-lg bg-primary/10">
@@ -256,26 +309,31 @@ export function ProfileOverview() {
             <h2 className="text-sm font-semibold">Solved Problems</h2>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-8">
-            <DonutChart />
+            <DonutChart
+              easySolved={user.solvedEasy}
+              mediumSolved={user.solvedMedium}
+              hardSolved={user.solvedHard}
+              totalProblems={totalProblems}
+            />
             <div className="flex-1 w-full space-y-4">
               {[
                 {
                   label: "Easy",
-                  solved: easySolved,
+                  solved: user.solvedEasy,
                   total: easy,
                   color: "bg-emerald-500",
                   text: "text-emerald-500",
                 },
                 {
                   label: "Medium",
-                  solved: mediumSolved,
+                  solved: user.solvedMedium,
                   total: medium,
                   color: "bg-amber-500",
                   text: "text-amber-500",
                 },
                 {
                   label: "Hard",
-                  solved: hardSolved,
+                  solved: user.solvedHard,
                   total: hard,
                   color: "bg-rose-500",
                   text: "text-rose-500",
@@ -291,11 +349,11 @@ export function ProfileOverview() {
                       {d.total}
                     </span>
                   </div>
-                  <div className="h-[5px] rounded-full bg-muted overflow-hidden">
+                  <div className="h-1.25 rounded-full bg-muted overflow-hidden">
                     <div
                       className={cn(
                         "h-full rounded-full transition-all duration-700",
-                        d.color
+                        d.color,
                       )}
                       style={{ width: `${(d.solved / d.total) * 100}%` }}
                     />
@@ -313,7 +371,6 @@ export function ProfileOverview() {
           </div>
         </div>
 
-        {/* Activity */}
         <div className="surface-card rounded-2xl p-6 overflow-x-auto">
           <div className="flex items-center gap-2.5 mb-5">
             <div className="flex size-7 items-center justify-center rounded-lg bg-primary/10">
@@ -322,11 +379,10 @@ export function ProfileOverview() {
             <span className="text-sm font-semibold">Activity</span>
           </div>
           <div className="mx-2">
-            <ActivityHeatmap />
+            <ActivityHeatmap data={[]} />
           </div>
         </div>
 
-        {/* Stats grid */}
         <div className="grid gap-4 sm:grid-cols-2">
           {[
             {
@@ -338,9 +394,9 @@ export function ProfileOverview() {
                 { label: "Rating", value: "1,484" },
                 {
                   label: "Global Ranking",
-                  value: `#${CURRENT_USER.rank.toLocaleString()}`,
+                  value: `${user.rating ? `#${user.rating}` : "N/A"}`,
                 },
-                { label: "Attended", value: `${CURRENT_USER.contests}` },
+                { label: "Attended", value: `${user._count.participations}` },
                 { label: "Top", value: "49.4%" },
               ],
             },
@@ -359,7 +415,12 @@ export function ProfileOverview() {
           ].map((section) => (
             <div key={section.title} className="surface-card rounded-2xl p-5">
               <div className="flex items-center gap-2.5 mb-4">
-                <div className={cn("flex size-7 items-center justify-center rounded-lg", section.bg)}>
+                <div
+                  className={cn(
+                    "flex size-7 items-center justify-center rounded-lg",
+                    section.bg,
+                  )}
+                >
                   <section.icon size={14} className={section.color} />
                 </div>
                 <h2 className="text-sm font-semibold">{section.title}</h2>
