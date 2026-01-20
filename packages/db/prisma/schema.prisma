@@ -113,7 +113,7 @@ model UserProblem {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([userId])
+  @@unique([userId, problemId])
 }
 
 model ProblemOfTheDay {

@@ -129,7 +129,9 @@ export function ActivityHeatmap({ data }: ActivityHeatmapProps) {
 
         <span>
           Max streak:{" "}
-          <span className="font-semibold text-foreground">{maxStreak}</span>{" "}
+          <span className="font-semibold text-foreground">
+            {maxStreak}
+          </span>{" "}
           days
         </span>
       </div>
@@ -155,7 +157,7 @@ export function ActivityHeatmap({ data }: ActivityHeatmapProps) {
           })}
         </div>
 
-        <div className="flex overflow-x-auto overflow-hidden">
+        <div className="flex overflow-hidden">
           <div
             className="flex flex-col justify-around text-[9px] text-muted-foreground/40 leading-none font-medium"
             style={{
@@ -170,7 +172,7 @@ export function ActivityHeatmap({ data }: ActivityHeatmapProps) {
             ))}
           </div>
 
-          <div className="flex gap-0.5">
+          <div className="flex gap-0.5 overflow-x-auto">
             {weeks.map((week, wi) => (
               <div key={wi} className="flex flex-col gap-0.5">
                 {week.map(({ date, submissionCount }, idx) => {

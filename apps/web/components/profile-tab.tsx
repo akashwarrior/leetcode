@@ -1,7 +1,7 @@
 "use client";
 
 import type { Session } from "@/lib/auth/client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { mutate } from "swr";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -12,19 +12,11 @@ import { Button } from "@/components/ui/button";
 import { LoaderCircle, Check, Camera } from "lucide-react";
 
 export function ProfileTab({ user }: { user: Session["user"] }) {
-  const [name, setName] = useState<string>("");
-  const [username, setUsername] = useState<string>("");
-  const [githubUrl, setGithubUrl] = useState<string>("");
+  const [name, setName] = useState<string>(user.name ?? "");
+  const [username, setUsername] = useState<string>(user.username ?? "");
+  const [githubUrl, setGithubUrl] = useState<string>(user.githubUrl ?? "");
   const [saved, setSaved] = useState<boolean>(false);
   const [saving, setSaving] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (user) {
-      setName(user.name ?? "");
-      setUsername(user.username ?? "");
-      setGithubUrl(user.githubUrl ?? "");
-    }
-  }, [user]);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -50,14 +42,6 @@ export function ProfileTab({ user }: { user: Session["user"] }) {
     setSaved(true);
     toast.success("Profile updated successfully");
     setTimeout(() => setSaved(false), 2000);
-  }
-
-  if (!user) {
-    return (
-      <div className="flex justify-center p-10">
-        <LoaderCircle className="animate-spin text-muted-foreground size-6" />
-      </div>
-    );
   }
 
   return (

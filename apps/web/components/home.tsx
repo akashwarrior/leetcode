@@ -1,8 +1,16 @@
+import { prisma, type ProblemStatus } from "@codearena/db";
 import type { Session } from "@/lib/auth";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ActivityHeatmap } from "@/components/activity-heatmap";
-import { getHomePageData } from "@/lib/db/queries";
+import {
+  getDailyProblem,
+  getProblemTags,
+  getProblemTotals,
+  getRecentProblems,
+  getUpcomingContests,
+  getUserActivityHeatmap,
+} from "@/lib/db/queries";
 import {
   Flame,
   CheckCircle2,
@@ -34,14 +42,43 @@ function getProgressWidth(count: number, total: number) {
 }
 
 export default async function Home({ user }: { user: Session["user"] }) {
-  const {
-    dailyProblem,
-    recentProblems,
+  const [
+    cachedDailyProblem,
+    cachedRecentProblems,
     problemTotals,
     upcomingContests,
     tags,
     activity,
-  } = await getHomePageData(user.id);
+  ] = await Promise.all([
+    getDailyProblem(),
+    getRecentProblems(user.id),
+    getProblemTotals(),
+    getUpcomingContests(),
+    getProblemTags(),
+    getUserActivityHeatmap(user.id),
+  ]);
+
+  const dailyProblem = { ...cachedDailyProblem?.problem, status: undefined as ProblemStatus | undefined };
+  const recentProblems = cachedRecentProblems.map((p) => ({ ...p.problem, status: p.status }));
+
+  if (dailyProblem?.id) {
+    const userproblem = await prisma.userProblem.findUnique({
+      where: {
+        userId_problemId: {
+          userId: user.id,
+          problemId: dailyProblem.id,
+        },
+      },
+      select: {
+        status: true,
+      }
+    })
+
+    if (userproblem) {
+      dailyProblem.status = userproblem.status;
+    }
+  }
+
 
   const solvedCount = {
     easy: user.solvedEasy,
@@ -169,11 +206,11 @@ export default async function Home({ user }: { user: Session["user"] }) {
                   className={cn(
                     "text-[10px] font-medium px-2 py-0.5 rounded-md ml-auto",
                     dailyProblem.difficulty === "EASY" &&
-                      "bg-emerald-500/10 text-emerald-500",
+                    "bg-emerald-500/10 text-emerald-500",
                     dailyProblem.difficulty === "MEDIUM" &&
-                      "bg-amber-500/10 text-amber-500",
+                    "bg-amber-500/10 text-amber-500",
                     dailyProblem.difficulty === "HARD" &&
-                      "bg-rose-500/10 text-rose-500",
+                    "bg-rose-500/10 text-rose-500",
                   )}
                 >
                   {dailyProblem.difficulty?.toLowerCase()}

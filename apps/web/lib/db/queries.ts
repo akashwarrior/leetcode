@@ -50,26 +50,19 @@ export const getRecentProblems = unstable_cache(
 
 export const getProblemTotals = unstable_cache(
   async (): Promise<ProblemTotals> => {
-    const [easy, medium, hard] = await Promise.all([
-      prisma.problem.count({
-        where: {
-          isHidden: false,
-          difficulty: "EASY",
-        },
-      }),
-      prisma.problem.count({
-        where: {
-          isHidden: false,
-          difficulty: "MEDIUM",
-        },
-      }),
-      prisma.problem.count({
-        where: {
-          isHidden: false,
-          difficulty: "HARD",
-        },
-      }),
-    ]);
+    const grouped = await prisma.problem.groupBy({
+      by: ["difficulty"],
+      where: { isHidden: false },
+      _count: { _all: true },
+    });
+
+    const byDifficulty = new Map(
+      grouped.map((g) => [g.difficulty, g._count._all]),
+    );
+
+    const easy = byDifficulty.get("EASY") ?? 0;
+    const medium = byDifficulty.get("MEDIUM") ?? 0;
+    const hard = byDifficulty.get("HARD") ?? 0;
 
     return { easy, medium, hard, total: easy + medium + hard };
   },
@@ -84,6 +77,7 @@ export const getProblemTags = unstable_cache(
         id: true,
         name: true,
       },
+      orderBy: { name: "asc" },
       take: 10,
     });
   },
@@ -147,56 +141,30 @@ export const getUpcomingContests = unstable_cache(
   { tags: ["contests"] },
 );
 
-export function getUserActivityHeatmap(userId: string) {
-  const today = new Date();
-  today.setUTCHours(0, 0, 0, 0);
+export const getUserActivityHeatmap = unstable_cache(
+  (userId: string) => {
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
 
-  const start = new Date(today);
-  start.setUTCDate(start.getUTCDate() - 364);
+    const start = new Date(today);
+    start.setUTCDate(start.getUTCDate() - 364);
 
-  return prisma.activity.findMany({
-    where: {
-      userId,
-      date: {
-        gte: start,
+    return prisma.activity.findMany({
+      where: {
+        userId,
+        date: {
+          gte: start,
+        },
       },
-    },
-    orderBy: {
-      date: "asc",
-    },
-    select: {
-      date: true,
-      submissionCount: true,
-    },
-  });
-}
-
-export async function getHomePageData(userId: string) {
-  const [
-    dailyProblem,
-    recentProblems,
-    problemTotals,
-    upcomingContests,
-    tags,
-    activity,
-  ] = await Promise.all([
-    getDailyProblem(),
-    getRecentProblems(userId),
-    getProblemTotals(),
-    getUpcomingContests(),
-    getProblemTags(),
-    getUserActivityHeatmap(userId),
-  ]);
-
-  return {
-    dailyProblem: { ...dailyProblem?.problem, status: "SOLVED" },
-    recentProblems: recentProblems.map(({ problem, status }) => ({
-      ...problem,
-      status,
-    })),
-    problemTotals,
-    upcomingContests,
-    tags,
-    activity,
-  };
-}
+      orderBy: {
+        date: "asc",
+      },
+      select: {
+        date: true,
+        submissionCount: true,
+      },
+    });
+  },
+  ["user-activity-heatmap"],
+  { tags: ["activity"] },
+);
