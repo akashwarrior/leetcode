@@ -2,7 +2,7 @@ import type { DifficultyFilter } from "@/types";
 
 export const DEFAULT_PAGE_SIZE = 10;
 
-export type ProblemsFilterParams = {
+type ProblemsFilterParams = {
   searchQuery?: string;
   difficulty?: DifficultyFilter;
   tags?: string[];

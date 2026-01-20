@@ -5,7 +5,7 @@ import { mutate } from "swr";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { User, Settings, LogOut } from "lucide-react";
-import { signOut, useSession } from "@/lib/auth-client";
+import { signOut, useSession } from "@/lib/auth/client";
 import {
   DropdownMenu,
   DropdownMenuContent,

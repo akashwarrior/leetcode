@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { EyeIcon, EyeOffIcon, LoaderCircle } from "lucide-react";
 import { TextEffect } from "@/components/ui/text-effect";
-import { signUp } from "@/lib/auth-client";
+import { signUp } from "@/lib/auth/client";
 import { toast } from "sonner";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import {

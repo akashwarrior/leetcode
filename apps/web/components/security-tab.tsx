@@ -10,7 +10,7 @@ import {
   changePassword,
   deleteUser,
   revokeOtherSessions,
-} from "@/lib/auth-client";
+} from "@/lib/auth/client";
 
 export function SecurityTab() {
   const router = useRouter();

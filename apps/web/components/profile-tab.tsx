@@ -1,13 +1,13 @@
 "use client";
 
-import type { Session } from "@/lib/auth-client";
+import type { Session } from "@/lib/auth/client";
 import { useState, useEffect } from "react";
 import { mutate } from "swr";
 import Image from "next/image";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-import { updateUser } from "@/lib/auth-client";
+import { updateUser } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { LoaderCircle, Check, Camera } from "lucide-react";
 

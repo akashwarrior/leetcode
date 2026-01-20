@@ -6,7 +6,7 @@ import { useState, ViewTransition } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { EyeIcon, EyeOffIcon, LoaderCircle } from "lucide-react";
-import { signIn } from "@/lib/auth-client";
+import { signIn } from "@/lib/auth/client";
 import { TextEffect } from "@/components/ui/text-effect";
 import { toast } from "sonner";
 import {
