@@ -1,4 +1,7 @@
+import Image from "next/image";
 import { prisma, type User } from "@codearena/db";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -10,16 +13,10 @@ import {
   Award,
   Star,
   Zap,
-  MapPin,
-  LinkIcon,
   Target,
   TrendingUp,
   MessageSquare,
-  GiftIcon,
 } from "lucide-react";
-import Image from "next/image";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 
 type DonutChartProps = {
   easySolved: number;

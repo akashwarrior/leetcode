@@ -7,7 +7,16 @@ const authClient = createAuthClient({
   plugins: [inferAdditionalFields<typeof auth>()],
 });
 
-export const { getSession, signIn, signOut, updateUser, signUp } = authClient;
+export const {
+  getSession,
+  signIn,
+  signOut,
+  updateUser,
+  signUp,
+  changePassword,
+  revokeOtherSessions,
+  deleteUser,
+} = authClient;
 
 export const useSession = () =>
   useSWR<Session | null>("session", async () => (await getSession()).data, {
