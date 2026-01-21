@@ -18,6 +18,8 @@
         "name": "next"
       }
     ],
+    "ignoreDeprecations": "6.0", // Ignore deprecation warnings for features that will be removed in TypeScript 6.0
+    "baseUrl": ".",
     "paths": {
       "@/*": ["./*"]
     }
@@ -27,8 +29,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

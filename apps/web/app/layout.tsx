@@ -8,19 +8,25 @@ import "./globals.css";
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-sans",
-  weight: ["300", "400", "500"],
+  weight: "variable",
+  display: "swap",
+  preload: true,
 });
 
 const spaceMono = Space_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
   weight: ["400", "700"],
+  display: "swap",
+  preload: true,
 });
 
 const doto = Doto({
   subsets: ["latin"],
   variable: "--font-display",
-  weight: ["400", "700"],
+  weight: "variable",
+  display: "swap",
+  preload: true,
 });
 
 export const metadata: Metadata = {
