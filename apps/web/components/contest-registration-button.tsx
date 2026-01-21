@@ -2,28 +2,27 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, Loader2, Trophy } from "lucide-react";
+import { CheckCircle, Spinner, Trophy } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { useSession } from "@/lib/auth/client";
 
 type ContestRegistrationButtonProps = {
   contestId: string;
   contestTitle: string;
   initialRegistered: boolean;
-  className?: string;
   size?: "default" | "sm" | "lg";
+  className?: string;
 };
 
 export function ContestRegistrationButton({
   contestId,
   contestTitle,
   initialRegistered,
-  className,
   size = "default",
+  className,
 }: ContestRegistrationButtonProps) {
-  const {data: session} = useSession();
+  const { data: session, isLoading: sessionLoading } = useSession();
   const router = useRouter();
   const [registered, setRegistered] = useState(initialRegistered);
   const [pending, setPending] = useState(false);
@@ -33,6 +32,10 @@ export function ContestRegistrationButton({
   }, [initialRegistered]);
 
   async function handleClick() {
+    if (sessionLoading) {
+      return;
+    }
+
     if (!session?.user) {
       toast.error("Sign in to register for contests");
       router.push("/sign-in");
@@ -42,16 +45,13 @@ export function ContestRegistrationButton({
     setPending(true);
 
     try {
-      const response = await fetch(
-        `/api/contests/${contestId}/participation`,
-        {
-          method: registered ? "DELETE" : "POST",
-        },
-      );
+      const response = await fetch(`/api/contests/${contestId}/participation`, {
+        method: registered ? "DELETE" : "POST",
+      });
 
-      const payload = (await response.json().catch(() => null)) as
-        | { message?: string }
-        | null;
+      const payload = (await response.json().catch(() => null)) as {
+        message?: string;
+      } | null;
 
       if (!response.ok) {
         throw new Error(payload?.message ?? "Unable to update registration");
@@ -84,19 +84,13 @@ export function ContestRegistrationButton({
       size={size}
       onClick={handleClick}
       disabled={pending}
-      className={cn(
-        "gap-2 rounded-md border text-sm font-medium",
-        registered
-          ? "border-border bg-muted text-foreground hover:bg-muted/80"
-          : "gradient-primary border-0 text-white",
-        className,
-      )}
+      className={className}
     >
       {pending ? (
-        <Loader2 size={14} className="animate-spin" />
+        <Spinner size={14} className="animate-spin" />
       ) : registered ? (
         <>
-          <CheckCircle2 size={14} />
+          <CheckCircle size={14} />
           Registered
         </>
       ) : (

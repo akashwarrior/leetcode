@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 
 function getParts(target: Date, now: Date) {
@@ -27,7 +27,7 @@ export function ContestCountdown({
   target,
   initialNow,
   className,
-  expiredLabel = "Live now",
+  expiredLabel = "Started",
   compact = false,
 }: ContestCountdownProps) {
   const [now, setNow] = useState(() =>
@@ -44,19 +44,27 @@ export function ContestCountdown({
     return () => window.clearInterval(interval);
   }, []);
 
-  const parsedTarget = target instanceof Date ? target : new Date(target);
+  const parsedTarget = useMemo(
+    () => (target instanceof Date ? target : new Date(target)),
+    [target],
+  );
   const { diff, days, hours, minutes, seconds } = getParts(parsedTarget, now);
 
   if (diff === 0) {
     return (
-      <span className={cn("font-medium text-emerald-500", className)}>
+      <span
+        className={cn(
+          "font-mono text-xs tracking-wider status-success",
+          className,
+        )}
+      >
         {expiredLabel}
       </span>
     );
   }
 
   return (
-    <span className={cn("font-mono tabular-nums", className)}>
+    <span className={cn("font-mono tabular-nums text-primary", className)}>
       {days > 0 ? `${days}d ` : null}
       {compact
         ? `${hours}h ${String(minutes).padStart(2, "0")}m`

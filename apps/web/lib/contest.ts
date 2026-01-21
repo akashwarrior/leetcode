@@ -12,15 +12,15 @@ export function getContestStatus(
   const start = toDate(startTime);
   const end = toDate(endTime);
 
-  if (start <= now && end > now) {
-    return "LIVE";
-  }
-
-  if (start > now) {
+  if (now < start) {
     return "UPCOMING";
   }
 
-  return "COMPLETED";
+  if (now >= end) {
+    return "COMPLETED";
+  }
+
+  return "LIVE";
 }
 
 export function getContestDurationMinutes(

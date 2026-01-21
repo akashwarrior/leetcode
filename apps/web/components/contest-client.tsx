@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { ContestCountdown } from "@/components/contest-countdown";
-import { AnimatedBackground } from "@/components/ui/animated-background";
 import { ContestRegistrationButton } from "@/components/contest-registration-button";
 import {
   getContestDurationMinutes,
@@ -16,12 +15,12 @@ import {
   Crown,
   Medal,
   ArrowRight,
-  CalendarClock,
-  Timer,
+  Calendar,
+  Clock,
   Trophy,
   Users,
-  Zap,
-} from "lucide-react";
+  FileText,
+} from "@phosphor-icons/react";
 
 type ContestListItem = {
   id: string;
@@ -66,42 +65,43 @@ const FILTERS: { id: FilterValue; label: string }[] = [
 ];
 
 function RankBadge({ rank }: { rank: number }) {
-  if (rank === 1) {
-    return <Crown size={14} className="text-amber-500" />;
-  }
-
-  if (rank === 2) {
-    return <Medal size={14} className="text-slate-400" />;
-  }
-
-  if (rank === 3) {
-    return <Medal size={14} className="text-amber-700" />;
-  }
-
+  if (rank === 1)
+    return <Crown size={14} weight="regular" className="status-warning" />;
+  if (rank === 2)
+    return <Medal size={14} weight="regular" className="text-secondary" />;
+  if (rank === 3)
+    return (
+      <Medal
+        size={14}
+        weight="regular"
+        className="status-warning"
+        style={{ opacity: 0.7 }}
+      />
+    );
   return (
-    <span className="w-4 text-center font-mono text-xs text-muted-foreground">
+    <span className="w-4 text-center font-mono text-xs text-disabled">
       {rank}
     </span>
   );
 }
 
 function StatusBadge({ status }: { status: ContestStatus }) {
-  const style =
+  const className =
     status === "LIVE"
-      ? "bg-emerald-500/10 text-emerald-500"
+      ? "status-success"
       : status === "UPCOMING"
-        ? "bg-primary/10 text-primary"
-        : "bg-muted text-muted-foreground";
+        ? "text-primary"
+        : "text-disabled";
 
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-medium",
-        style,
+        "inline-flex items-center gap-1.5 text-xs font-medium",
+        className,
       )}
     >
       {status === "LIVE" ? (
-        <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+        <span className="size-1.5 rounded-full bg-success" />
       ) : null}
       {status === "LIVE"
         ? "Live"
@@ -122,51 +122,58 @@ function ContestCard({
   now: Date;
 }) {
   const status = getContestStatus(contest.startTime, contest.endTime, now);
-  const duration = getContestDurationMinutes(contest.startTime, contest.endTime);
+  const duration = getContestDurationMinutes(
+    contest.startTime,
+    contest.endTime,
+  );
   const href = `/contest/${contest.slug}`;
 
   return (
-    <article className="surface-card rounded-xl p-5 transition-colors duration-150 hover:border-foreground/10">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <div className="mb-3 flex flex-wrap items-center gap-2">
+    <article className="nothing-card nothing-card-hover p-4">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <div className="mb-2 flex items-center gap-2">
             <StatusBadge status={status} />
-            {isRegistered && status !== "COMPLETED" ? (
-              <span className="rounded-md bg-emerald-500/10 px-2 py-1 text-[11px] font-medium text-emerald-500">
+            {isRegistered && status !== "COMPLETED" && (
+              <span className="status-success text-xs font-medium">
                 Registered
               </span>
-            ) : null}
+            )}
           </div>
 
           <Link
             prefetch={false}
             href={href}
-            className="group inline-flex items-center gap-2 text-lg font-medium tracking-tight hover:text-primary transition-colors"
+            className="group inline-flex items-center gap-1.5 text-base font-medium tracking-tight hover:text-primary transition-colors duration-200 ease-out"
           >
             <span className="truncate">{contest.title}</span>
-            <ArrowRight size={14} className="text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+            <ArrowRight
+              size={14}
+              weight="regular"
+              className="text-disabled transition-all duration-200 ease-out group-hover:translate-x-0.5 group-hover:text-primary"
+            />
           </Link>
 
-          <div className="mt-3 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
-            <span className="flex items-center gap-2">
-              <CalendarClock size={14} className="text-muted-foreground/60" />
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-secondary">
+            <span className="flex items-center gap-1.5">
+              <Calendar size={12} weight="regular" className="text-disabled" />
               {contest.startLabel}
             </span>
-            <span className="flex items-center gap-2">
-              <Timer size={14} className="text-muted-foreground/60" />
-              {duration} minutes
+            <span className="flex items-center gap-1.5">
+              <Clock size={12} weight="regular" className="text-disabled" />
+              {duration}m
             </span>
-            <span className="flex items-center gap-2">
-              <Zap size={14} className="text-muted-foreground/60" />
-              {contest.problemCount} problems
+            <span className="flex items-center gap-1.5">
+              <FileText size={12} weight="regular" className="text-disabled" />
+              {contest.problemCount}
             </span>
-            <span className="flex items-center gap-2">
-              <Users size={14} className="text-muted-foreground/60" />
-              {contest.participantCount.toLocaleString()} participants
+            <span className="flex items-center gap-1.5">
+              <Users size={12} weight="regular" className="text-disabled" />
+              {contest.participantCount.toLocaleString()}
             </span>
           </div>
 
-          <p className="mt-3 text-sm text-muted-foreground">
+          <p className="mt-2 text-xs text-secondary">
             {status === "UPCOMING" ? (
               <>
                 Starts in{" "}
@@ -174,7 +181,7 @@ function ContestCard({
                   target={contest.startTime}
                   initialNow={now}
                   compact
-                  className="text-sm font-medium text-foreground"
+                  className="text-xs font-medium text-primary"
                 />
               </>
             ) : status === "LIVE" ? (
@@ -185,41 +192,41 @@ function ContestCard({
                   initialNow={now}
                   compact
                   expiredLabel="Finalizing"
-                  className="text-sm font-medium text-foreground"
+                  className="text-xs font-medium text-primary"
                 />
               </>
             ) : (
-              "Results and linked problems remain available after the contest ends."
+              "Results and problems remain available."
             )}
           </p>
         </div>
 
-        <div className="flex shrink-0 flex-wrap items-center gap-2">
-          {status === "UPCOMING" ? (
+        <div className="flex shrink-0 flex-col items-end gap-2">
+          {status === "UPCOMING" && (
             <ContestRegistrationButton
               contestId={contest.id}
               contestTitle={contest.title}
               initialRegistered={isRegistered}
               size="sm"
             />
-          ) : null}
-
+          )}
           <Link
-            prefetch={false}
             href={href}
+            prefetch={false}
             className={cn(
               buttonVariants({
                 variant: status === "LIVE" ? "default" : "outline",
-                size: "sm",
               }),
-              status === "LIVE" && "gradient-primary border-0 text-white",
+              "w-25",
+              status === "LIVE" &&
+                "bg-primary text-primary-foreground hover:bg-primary/90",
             )}
           >
             {status === "LIVE"
-              ? "Enter contest"
+              ? "Enter"
               : status === "UPCOMING"
-                ? "View details"
-                : "View results"}
+                ? "Details"
+                : "Results"}
           </Link>
         </div>
       </div>
@@ -238,7 +245,6 @@ export function ContestClient({
 
   useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 1000);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -248,7 +254,7 @@ export function ContestClient({
   );
 
   const orderedContests = useMemo(() => {
-    return contests.sort((left, right) => {
+    return [...contests].sort((left, right) => {
       const leftStatus = getContestStatus(left.startTime, left.endTime, now);
       const rightStatus = getContestStatus(right.startTime, right.endTime, now);
 
@@ -274,60 +280,51 @@ export function ContestClient({
   }, [contests, now]);
 
   const filteredContests = orderedContests.filter((contest) => {
-    if (filter === "ALL") {
-      return true;
-    }
-
+    if (filter === "ALL") return true;
     return getContestStatus(contest.startTime, contest.endTime, now) === filter;
   });
 
   return (
-    <div className="pb-12 space-y-6">
-      <div>
-        <div>
-          <h1 className="text-xl font-medium tracking-tight">Contests</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Register for upcoming rounds, track live contests, and review completed standings.
-          </p>
-        </div>
+    <div className="pb-12">
+      <div className="mb-8">
+        <p className="font-mono-label mb-1">COMPETE</p>
+        <h1 className="text-display text-3xl tracking-tighter">Contests</h1>
+        <p className="mt-2 text-sm text-secondary max-w-md">
+          Register for upcoming rounds, track live contests, and review
+          completed standings.
+        </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
         <div className="space-y-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <h2 className="text-sm font-medium">Schedule</h2>
-              <span className="rounded-md bg-muted px-2 py-0.5 font-mono text-[11px] text-muted-foreground">
+              <h2 className="text-sm font-medium text-primary">Schedule</h2>
+              <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-[11px] text-secondary">
                 {filteredContests.length}
               </span>
             </div>
 
-            <div className="flex items-center rounded-lg border border-border bg-card p-0.5">
-              <AnimatedBackground
-                defaultValue={filter}
-                onValueChange={(value) => setFilter(value as FilterValue)}
-                className="rounded-md bg-muted"
-                transition={{ ease: "easeInOut", duration: 0.15 }}
-              >
-                {FILTERS.map((option) => (
-                  <button
-                    key={option.id}
-                    data-id={option.id}
-                    className={cn(
-                      "inline-flex h-7 items-center rounded-md px-3 text-xs font-medium transition-colors",
-                      filter !== option.id &&
-                      "text-muted-foreground hover:text-foreground",
-                    )}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </AnimatedBackground>
+            <div className="inline-flex items-center rounded-lg bg-muted p-0.5">
+              {FILTERS.map((option) => (
+                <button
+                  key={option.id}
+                  onClick={() => setFilter(option.id)}
+                  className={cn(
+                    "inline-flex h-7 items-center px-2.5 text-xs font-medium rounded-md transition-colors duration-200 ease-out",
+                    filter !== option.id
+                      ? "text-secondary hover:text-primary"
+                      : "bg-background text-primary",
+                  )}
+                >
+                  {option.label}
+                </button>
+              ))}
             </div>
           </div>
 
           {filteredContests.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {filteredContests.map((contest) => (
                 <ContestCard
                   key={contest.id}
@@ -338,41 +335,41 @@ export function ContestClient({
               ))}
             </div>
           ) : (
-            <div className="surface-card rounded-xl p-12 text-center">
-              <p className="text-sm text-muted-foreground">
+            <div className="nothing-card p-12 text-center">
+              <p className="text-sm text-secondary">
                 No contests match the selected filter.
               </p>
             </div>
           )}
         </div>
 
-        <div className="space-y-5">
-          <div className="surface-card rounded-xl p-5">
-            <div className="mb-4 flex items-center gap-2">
-              <Trophy size={14} className="text-amber-500" />
-              <h2 className="text-sm font-medium">Top Rated</h2>
+        <div className="space-y-4">
+          <div className="nothing-card p-4">
+            <div className="mb-3 flex items-center gap-2">
+              <Trophy size={14} weight="regular" className="status-warning" />
+              <h2 className="text-sm font-medium text-primary">Top Rated</h2>
             </div>
 
-            <div className="space-y-1">
+            <div className="space-y-0.5">
               {topUsers.map((user, index) => (
                 <Link
                   key={user.username}
                   prefetch={false}
                   href={`/u/${user.username}`}
-                  className="group flex items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-muted/40"
+                  className="group flex items-center gap-2.5 rounded px-2 py-1.5 transition-colors duration-200 ease-out hover:bg-muted/50"
                 >
                   <div className="flex w-4 justify-center">
                     <RankBadge rank={index + 1} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium group-hover:text-primary transition-colors">
+                    <p className="truncate text-sm font-medium group-hover:text-primary transition-colors duration-200 ease-out">
                       {user.username}
                     </p>
-                    <p className="text-xs text-muted-foreground">
-                      {user.globalRank ? `Global #${user.globalRank}` : "Unranked"}
+                    <p className="text-xs text-secondary">
+                      {user.globalRank ? `#${user.globalRank}` : "Unranked"}
                     </p>
                   </div>
-                  <span className="font-mono text-xs text-muted-foreground">
+                  <span className="font-mono text-xs tabular-nums text-secondary">
                     {user.rating}
                   </span>
                 </Link>
@@ -380,28 +377,34 @@ export function ContestClient({
             </div>
           </div>
 
-          <div className="surface-card rounded-xl p-5">
-            <h2 className="mb-4 text-sm font-medium">Your Snapshot</h2>
+          <div className="nothing-card p-4">
+            <h2 className="mb-3 text-sm font-medium text-primary">
+              Your Snapshot
+            </h2>
 
             {myStats ? (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div>
-                  <p className="text-sm font-medium">{myStats.username}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {myStats.globalRank ? `Global #${myStats.globalRank}` : "Global rank pending"}
+                  <p className="text-sm font-medium text-primary">
+                    {myStats.username}
+                  </p>
+                  <p className="text-xs text-secondary">
+                    {myStats.globalRank
+                      ? `#${myStats.globalRank}`
+                      : "Rank pending"}
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2">
                   {[
                     { label: "Rating", value: myStats.rating },
                     { label: "Solved", value: myStats.solvedTotal },
                     { label: "Attended", value: myStats.attended },
                     { label: "Streak", value: `${myStats.streak}d` },
                   ].map((item) => (
-                    <div key={item.label} className="rounded-lg bg-muted/40 p-3">
-                      <p className="text-[11px] text-muted-foreground">{item.label}</p>
-                      <p className="mt-1 text-base font-medium tabular-nums">
+                    <div key={item.label} className="rounded bg-muted/50 p-2.5">
+                      <p className="text-[11px] text-secondary">{item.label}</p>
+                      <p className="mt-0.5 text-sm font-medium tabular-nums text-primary">
                         {item.value}
                       </p>
                     </div>
@@ -411,20 +414,26 @@ export function ContestClient({
                 <Link
                   prefetch={false}
                   href={`/u/${myStats.username}`}
-                  className={cn(buttonVariants({ variant: "outline", size: "sm" }), "w-full")}
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" }),
+                    "w-full",
+                  )}
                 >
                   View profile
                 </Link>
               </div>
             ) : (
               <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  Sign in to register for contests and track your participation history.
+                <p className="text-sm text-secondary">
+                  Sign in to register for contests and track your participation.
                 </p>
                 <Link
                   prefetch={false}
                   href="/sign-in"
-                  className={cn(buttonVariants({ size: "sm" }), "gradient-primary w-full border-0 text-white")}
+                  className={cn(
+                    buttonVariants({ size: "sm" }),
+                    "bg-primary text-primary-foreground hover:bg-primary/90 w-full",
+                  )}
                 >
                   Sign in
                 </Link>

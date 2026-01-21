@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { LoaderCircle, Key, Globe } from "lucide-react";
+import { Spinner, Key, Globe } from "@phosphor-icons/react";
 import {
   changePassword,
   deleteUser,
@@ -13,7 +12,6 @@ import {
 } from "@/lib/auth/client";
 
 export function SecurityTab() {
-  const router = useRouter();
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [updatingPassword, setUpdatingPassword] = useState(false);
 
@@ -86,7 +84,7 @@ export function SecurityTab() {
 
     setDeleting(true);
     const { error } = await deleteUser({
-      callbackURL: "/sign-up",
+      callbackURL: "/",
     });
 
     if (error) {
@@ -96,7 +94,6 @@ export function SecurityTab() {
     }
 
     toast.success("Account deleted");
-    router.replace("/");
   }
 
   return (
@@ -104,15 +101,15 @@ export function SecurityTab() {
       <div className="py-4 first:pt-0">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium">Password</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-sm font-medium text-primary">Password</p>
+            <p className="text-xs text-secondary mt-0.5">
               Secure your account by keeping your password updated
             </p>
           </div>
           <Button
             variant="outline"
             size="sm"
-            className="h-8 rounded-md text-xs font-medium shrink-0"
+            className="h-8 rounded-lg text-xs font-medium shrink-0"
             onClick={() => {
               setShowPasswordForm(!showPasswordForm);
             }}
@@ -128,7 +125,7 @@ export function SecurityTab() {
             className="mt-4 space-y-3 p-4 rounded-lg bg-muted/30 border border-border"
           >
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+              <label className="font-mono-label mb-1.5 block">
                 Current password
               </label>
               <Input
@@ -142,7 +139,7 @@ export function SecurityTab() {
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+              <label className="font-mono-label mb-1.5 block">
                 New password
               </label>
               <Input
@@ -157,7 +154,7 @@ export function SecurityTab() {
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+              <label className="font-mono-label mb-1.5 block">
                 Confirm new password
               </label>
               <Input
@@ -175,7 +172,7 @@ export function SecurityTab() {
                 type="button"
                 variant="outline"
                 size="sm"
-                className="h-8 rounded-md text-xs"
+                className="h-8 rounded-lg text-xs"
                 disabled={updatingPassword}
                 onClick={() => setShowPasswordForm(false)}
               >
@@ -185,10 +182,10 @@ export function SecurityTab() {
                 type="submit"
                 size="sm"
                 disabled={updatingPassword}
-                className="h-8 rounded-md text-xs gradient-primary border-0 text-white min-w-28"
+                className="h-8 rounded-lg text-xs bg-primary text-primary-foreground hover:opacity-85 min-w-28"
               >
                 {updatingPassword ? (
-                  <LoaderCircle className="animate-spin size-4" />
+                  <Spinner className="animate-spin size-4" />
                 ) : (
                   "Update password"
                 )}
@@ -201,8 +198,8 @@ export function SecurityTab() {
       <div className="py-4">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium">Active sessions</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-sm font-medium text-primary">Active sessions</p>
+            <p className="text-xs text-secondary mt-0.5">
               Sign out all other active devices except this one
             </p>
           </div>
@@ -210,11 +207,11 @@ export function SecurityTab() {
             variant="outline"
             size="sm"
             disabled={loggingOutAll}
-            className="h-8 rounded-md text-xs font-medium shrink-0 text-destructive border-destructive/20 hover:bg-destructive/10 min-w-24"
+            className="h-8 rounded-lg text-xs font-medium shrink-0 status-error border-error/20 hover:bg-error/10 min-w-24"
             onClick={handleSignOutAll}
           >
             {loggingOutAll ? (
-              <LoaderCircle className="animate-spin size-4" />
+              <Spinner className="animate-spin size-4" />
             ) : (
               <>
                 <Globe size={12} className="mr-1.5" />
@@ -228,10 +225,8 @@ export function SecurityTab() {
       <div className="py-4">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium text-destructive">
-              Delete account
-            </p>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-sm font-medium status-error">Delete account</p>
+            <p className="text-xs text-secondary mt-0.5">
               Permanently delete your account, submissions, and all data
             </p>
           </div>
@@ -239,14 +234,10 @@ export function SecurityTab() {
             variant="outline"
             size="sm"
             disabled={deleting}
-            className="h-8 rounded-md text-xs font-medium shrink-0 text-destructive border-destructive/20 hover:bg-destructive/10 min-w-20"
+            className="h-8 rounded-lg text-xs font-medium shrink-0 status-error border-error/20 hover:bg-error/10 min-w-20"
             onClick={handleDeleteAccount}
           >
-            {deleting ? (
-              <LoaderCircle className="animate-spin size-4" />
-            ) : (
-              "Delete"
-            )}
+            {deleting ? <Spinner className="animate-spin size-4" /> : "Delete"}
           </Button>
         </div>
       </div>

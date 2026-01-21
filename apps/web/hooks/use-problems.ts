@@ -48,7 +48,7 @@ export function useProblems() {
       fetcher,
       {
         keepPreviousData: true,
-        revalidateFirstPage: false,
+        errorRetryCount: 3,
       },
     );
 
@@ -58,7 +58,14 @@ export function useProblems() {
       : false;
 
   const loadMore = () => {
-    if (!hasMore || isValidating) {
+    console.log({
+      hasMore,
+      data,
+      newData: data?.[(data?.length || 1) - 1],
+      isLoading,
+      isValidating,
+    });
+    if (!hasMore || isLoading || isValidating) {
       return;
     }
     setSize((prev) => prev + 1);

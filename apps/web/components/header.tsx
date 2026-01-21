@@ -4,37 +4,53 @@ import { useState } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
+import { useSession } from "@/lib/auth/client";
 import { HeaderSearch } from "./header-search";
 import { ProfileDropdown } from "./profile-dropdown";
 import { ThemeToggle } from "./theme-toggle";
-import { Code2, Menu, X, Home, LayoutGrid, Trophy } from "lucide-react";
+import {
+  CodeBlock,
+  List,
+  House,
+  SquaresFour,
+  Trophy,
+  X,
+} from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "motion/react";
 
 const NAV_ITEMS = [
-  { label: "Home", href: "/", icon: Home },
-  { label: "Problems", href: "/problems", icon: LayoutGrid },
+  { label: "Home", href: "/", icon: House },
+  { label: "Problems", href: "/problems", icon: SquaresFour },
   { label: "Contest", href: "/contest", icon: Trophy },
 ];
 
 export function Header() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { data: sessionData } = useSession();
+  const profileHref = sessionData?.user
+    ? `/u/${sessionData.user.username}`
+    : "/sign-in";
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full bg-white/80 dark:bg-neutral-950/80 backdrop-blur-sm border-b h-13">
-        <nav className="mx-auto flex w-full items-center justify-between px-4 sm:px-6 py-2">
-          <div className="flex h-full items-center gap-5">
-            <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-              <div className="flex size-6 items-center justify-center rounded-md bg-accent transition-transform duration-200 group-hover:scale-105">
-                <Code2 size={11} strokeWidth={2.5} />
+      <header className="sticky top-0 z-50 w-full bg-background border-b border-border">
+        <nav className="mx-auto flex w-full items-center justify-between px-4 sm:px-6 h-12">
+          <div className="flex h-full items-center gap-6">
+            <Link href="/" className="flex items-center gap-2 shrink-0">
+              <div className="flex size-5 items-center justify-center rounded bg-primary">
+                <CodeBlock
+                  size={10}
+                  className="text-primary-foreground"
+                  weight="bold"
+                />
               </div>
-              <span className="text-sm font-semibold tracking-tight">
+              <span className="text-sm font-medium tracking-tight text-primary">
                 CodeArena
               </span>
             </Link>
 
-            <div className="hidden sm:flex items-center">
+            <div className="hidden sm:flex items-center gap-0.5">
               {NAV_ITEMS.map(({ href, label }) => {
                 const isActive =
                   href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -43,37 +59,26 @@ export function Header() {
                     key={href}
                     href={href}
                     className={cn(
-                      "relative inline-flex h-8 items-center px-3 text-sm font-medium rounded-md transition-colors duration-150",
+                      "relative inline-flex h-7 items-center px-2.5 text-[0.8125rem] font-medium rounded-md transition-colors",
                       isActive
-                        ? "text-foreground"
-                        : "text-muted-foreground hover:text-foreground",
+                        ? "bg-muted text-primary"
+                        : "text-secondary hover:text-primary hover:bg-muted/50",
                     )}
                   >
                     {label}
-                    {isActive && (
-                      <motion.span
-                        layoutId="nav-active-indicator"
-                        className="absolute -bottom-2.5 inset-x-1.5 h-0.5 bg-primary rounded-full"
-                        transition={{
-                          type: "spring",
-                          stiffness: 380,
-                          damping: 30,
-                        }}
-                      />
-                    )}
                   </Link>
                 );
               })}
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <HeaderSearch />
             <ThemeToggle />
             <ProfileDropdown />
 
             <button
-              className="sm:hidden ml-0.5 flex size-8 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors duration-150"
+              className="sm:hidden flex size-8 items-center justify-center rounded text-secondary hover:text-primary hover:bg-muted transition-colors"
               onClick={() => setMobileOpen((v) => !v)}
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
             >
@@ -81,22 +86,22 @@ export function Header() {
                 {mobileOpen ? (
                   <motion.span
                     key="x"
-                    initial={{ rotate: -45, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: 45, opacity: 0 }}
-                    transition={{ duration: 0.14, ease: "easeOut" }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.1 }}
                   >
-                    <X size={17} strokeWidth={2} />
+                    <X size={16} weight="bold" />
                   </motion.span>
                 ) : (
                   <motion.span
                     key="menu"
-                    initial={{ rotate: 45, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: -45, opacity: 0 }}
-                    transition={{ duration: 0.14, ease: "easeOut" }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.1 }}
                   >
-                    <Menu size={17} strokeWidth={2} />
+                    <List size={16} weight="bold" />
                   </motion.span>
                 )}
               </AnimatePresence>
@@ -113,21 +118,21 @@ export function Header() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.18 }}
-              className="fixed inset-0 z-40 sm:hidden bg-background/70 backdrop-blur-[6px]"
+              transition={{ duration: 0.15 }}
+              className="fixed inset-0 z-40 sm:hidden bg-background/80"
               onClick={() => setMobileOpen(false)}
             />
 
             <motion.div
               key="menu"
-              initial={{ opacity: 0, y: -6 }}
+              initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
               className="fixed top-12 inset-x-0 z-40 sm:hidden"
             >
-              <div className="mx-3 mt-2 rounded-xl border border-border bg-card/98 backdrop-blur-sm shadow-xl shadow-black/10 overflow-hidden">
-                <nav className="p-2">
+              <div className="mx-3 mt-1 rounded-lg border border-border bg-card overflow-hidden">
+                <nav className="p-1.5">
                   {NAV_ITEMS.map(({ href, label, icon: Icon }, i) => {
                     const isActive =
                       href === "/"
@@ -136,30 +141,28 @@ export function Header() {
                     return (
                       <motion.div
                         key={href}
-                        initial={{ opacity: 0, x: -8 }}
+                        initial={{ opacity: 0, x: -6 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{
-                          delay: i * 0.04,
-                          duration: 0.2,
-                          ease: [0.16, 1, 0.3, 1],
+                          delay: i * 0.03,
+                          duration: 0.15,
+                          ease: "easeOut",
                         }}
                       >
                         <Link
                           href={href}
                           onClick={() => setMobileOpen(false)}
                           className={cn(
-                            "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150",
+                            "flex items-center gap-3 px-3 py-2 rounded text-sm font-medium transition-colors",
                             isActive
-                              ? "bg-primary/10 text-primary"
-                              : "text-muted-foreground hover:text-foreground hover:bg-muted/60",
+                              ? "bg-muted text-primary"
+                              : "text-secondary hover:text-primary hover:bg-muted/50",
                           )}
                         >
                           <Icon
-                            size={15}
+                            size={14}
                             className={
-                              isActive
-                                ? "text-primary"
-                                : "text-muted-foreground/50"
+                              isActive ? "text-primary" : "text-secondary/50"
                             }
                           />
                           {label}
@@ -172,25 +175,25 @@ export function Header() {
                   })}
                 </nav>
 
-                <div className="border-t border-border/60 p-2">
+                <div className="border-t border-border p-1.5">
                   {[
                     { label: "Settings", href: "/settings" },
-                    { label: "Profile", href: "/u/akash_codes" },
+                    { label: "Profile", href: profileHref },
                   ].map(({ label, href }, i) => (
                     <motion.div
                       key={href}
-                      initial={{ opacity: 0, x: -8 }}
+                      initial={{ opacity: 0, x: -6 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{
-                        delay: NAV_ITEMS.length * 0.04 + i * 0.04,
-                        duration: 0.2,
-                        ease: [0.16, 1, 0.3, 1],
+                        delay: NAV_ITEMS.length * 0.03 + i * 0.03,
+                        duration: 0.15,
+                        ease: "easeOut",
                       }}
                     >
                       <Link
                         href={href}
                         onClick={() => setMobileOpen(false)}
-                        className="flex items-center px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors duration-150"
+                        className="flex items-center px-3 py-2 rounded text-sm text-secondary hover:text-primary hover:bg-muted/50 transition-colors"
                       >
                         {label}
                       </Link>

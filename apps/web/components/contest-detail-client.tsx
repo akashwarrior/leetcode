@@ -1,21 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  BarChart3,
-  CalendarClock,
-  CheckCircle2,
-  Crown,
-  FileText,
-  Lock,
-  Medal,
-  Target,
-  Timer,
-  Users,
-  Zap,
-} from "lucide-react";
 import { ContestCountdown } from "@/components/contest-countdown";
 import { ContestRegistrationButton } from "@/components/contest-registration-button";
 import { buttonVariants } from "@/components/ui/button";
@@ -24,7 +11,20 @@ import {
   getContestStatus,
   type ContestStatus,
 } from "@/lib/contest";
-import { cn } from "@/lib/utils";
+import {
+  ArrowLeft,
+  Calendar,
+  CheckCircle,
+  Clock,
+  Crown,
+  FileText,
+  Lock,
+  Medal,
+  Target,
+  Trophy,
+  Users,
+} from "@phosphor-icons/react";
+import { useRouter } from "next/navigation";
 
 type LeaderboardEntry = {
   rank: number;
@@ -62,60 +62,38 @@ type ContestDetailClientProps = {
 };
 
 function RankBadge({ rank }: { rank: number }) {
-  if (rank === 1) {
-    return <Crown size={14} className="text-amber-500" />;
-  }
-
-  if (rank === 2) {
-    return <Medal size={14} className="text-slate-400" />;
-  }
-
-  if (rank === 3) {
-    return <Medal size={14} className="text-amber-700" />;
-  }
-
+  if (rank === 1) return <Crown size={14} className="status-warning" />;
+  if (rank === 2) return <Medal size={14} className="text-secondary" />;
+  if (rank === 3) return <Medal size={14} className="text-secondary" />;
   return (
-    <span className="w-4 text-center font-mono text-xs text-muted-foreground">
+    <span className="w-4 text-center font-mono text-xs text-disabled">
       {rank}
     </span>
   );
 }
 
 function difficultyClassName(difficulty: ContestProblemItem["difficulty"]) {
-  if (difficulty === "EASY") {
-    return "text-emerald-500";
-  }
-
-  if (difficulty === "MEDIUM") {
-    return "text-amber-500";
-  }
-
-  return "text-rose-500";
+  if (difficulty === "EASY") return "status-success";
+  if (difficulty === "MEDIUM") return "status-warning";
+  return "status-error";
 }
 
 function statusClassName(status: ContestStatus) {
-  if (status === "LIVE") {
-    return "bg-emerald-500/10 text-emerald-500";
-  }
-
-  if (status === "UPCOMING") {
-    return "bg-primary/10 text-primary";
-  }
-
-  return "bg-muted text-muted-foreground";
+  if (status === "LIVE") return "status-success";
+  if (status === "UPCOMING") return "text-primary";
+  return "text-disabled";
 }
 
 export function ContestDetailClient({
   contest,
-  isAuthed,
   isRegistered,
   initialNow,
 }: ContestDetailClientProps) {
+  const router = useRouter();
   const [now, setNow] = useState(() => new Date(initialNow));
 
   useEffect(() => {
     const interval = window.setInterval(() => setNow(new Date()), 1000);
-
     return () => window.clearInterval(interval);
   }, []);
 
@@ -141,299 +119,235 @@ export function ContestDetailClient({
   );
 
   const primaryProblem = contest.problems[0];
-  const quickFacts = [
-    { label: "Start", value: contest.startLabel, icon: CalendarClock },
-    { label: "Duration", value: `${duration} minutes`, icon: Timer },
-    {
-      label: "Field",
-      value: `${contest.participantCount.toLocaleString()} participants`,
-      icon: Users,
-    },
-  ] as const;
-  const snapshotItems = [
-    {
-      label: "Problems",
-      value: `${contest.problemCount} linked`,
-      icon: Zap,
-      color: "text-primary",
-    },
-    {
-      label: "Scoring",
-      value: "Score, then penalty",
-      icon: Target,
-      color: "text-emerald-500",
-    },
-    {
-      label: "Status",
-      value: isLive
-        ? "Running now"
-        : isUpcoming
-          ? "Registration open"
-          : "Contest closed",
-      icon: BarChart3,
-      color: "text-violet-500",
-    },
-  ] as const;
-  const heroTitle = isUpcoming
-    ? "Registration window"
-    : isLive
-      ? "Round in progress"
-      : "Contest archive";
-  const heroBody = isUpcoming
-    ? "Register now and be ready when the problem set unlocks."
-    : isLive
-      ? "Problems and standings are live. Jump in while the clock is still running."
-      : "Review the standings and reopen the full contest problem set.";
 
   return (
-    <div className="space-y-8 pb-10">
-      <Link
-        prefetch={false}
-        href="/contest"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+    <div className="space-y-6 pb-10">
+      <button
+        onClick={router.back}
+        className="flex items-center gap-1.5 text-sm text-secondary transition-colors duration-200 ease-out hover:text-primary cursor-pointer"
       >
         <ArrowLeft size={14} />
         All Contests
-      </Link>
+      </button>
 
-      <section className="relative overflow-hidden rounded-[28px] border border-border bg-card">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,oklch(0.7_0.18_275_/_0.16),transparent_34%),radial-gradient(circle_at_bottom_right,oklch(0.73_0.15_160_/_0.12),transparent_28%)]" />
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent dark:via-white/10" />
+      <section className="nothing-card p-5 sm:p-6">
+        <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <span
+                className={cn(
+                  "inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium",
+                  statusClassName(status),
+                )}
+              >
+                {isLive && (
+                  <span className="size-1.5 rounded-full bg-success animate-pulse" />
+                )}
+                {statusLabel}
+              </span>
+              {isRegistered && !isPast && (
+                <span className="px-2 py-0.5 text-xs font-medium status-success">
+                  Registered
+                </span>
+              )}
+            </div>
 
-        <div className="relative px-5 py-6 sm:px-7 sm:py-7">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.45fr)_320px]">
-            <div className="space-y-6">
-              <div className="flex flex-wrap items-center gap-2">
-                <span
+            <div className="space-y-2">
+              <p className="font-mono-label">Contest Detail</p>
+              <h1 className="text-display text-2xl sm:text-3xl">
+                {contest.title}
+              </h1>
+              <p className="text-sm text-secondary sm:text-[15px]">
+                {contest.description ??
+                  "A ranked coding contest with live standings, timed problems, and post-round review."}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-secondary">
+              <span className="flex items-center gap-1.5">
+                <Calendar size={14} className="text-disabled" />
+                {contest.startLabel}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Clock size={14} className="text-disabled" />
+                {duration}m
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Users size={14} className="text-disabled" />
+                {contest.participantCount.toLocaleString()} participants
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-4 rounded border border-border p-4">
+            {isUpcoming && (
+              <div>
+                <p className="text-xs text-secondary">Starts in</p>
+                <ContestCountdown
+                  target={contest.startTime}
+                  initialNow={now}
+                  className="mt-0.5 text-lg font-medium"
+                />
+              </div>
+            )}
+
+            {isLive && (
+              <div>
+                <p className="text-xs text-secondary">Ends in</p>
+                <ContestCountdown
+                  target={contest.endTime}
+                  initialNow={now}
+                  expiredLabel="Finalizing"
+                  className="mt-0.5 text-lg font-medium"
+                />
+              </div>
+            )}
+
+            <div className="flex flex-wrap gap-2">
+              {isUpcoming && (
+                <ContestRegistrationButton
+                  contestId={contest.id}
+                  contestTitle={contest.title}
+                  initialRegistered={isRegistered}
+                  className="flex-1"
+                />
+              )}
+
+              {isLive && (
+                <Link
+                  prefetch={false}
+                  href={
+                    primaryProblem
+                      ? `/problems/${primaryProblem.slug}`
+                      : "#problem-set"
+                  }
                   className={cn(
-                    "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-medium uppercase tracking-[0.08em]",
-                    statusClassName(status),
+                    buttonVariants({ size: "default" }),
+                    "bg-primary text-primary-foreground hover:bg-primary/90 flex-1",
                   )}
                 >
-                  {isLive ? (
-                    <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  ) : null}
-                  {statusLabel}
-                </span>
-                {isRegistered && !isPast ? (
-                  <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.08em] text-emerald-500">
-                    Registered
-                  </span>
-                ) : null}
-              </div>
+                  {primaryProblem ? "Start solving" : "Open contest"}
+                </Link>
+              )}
 
-              <div className="max-w-3xl space-y-3">
-                <h1 className="text-3xl font-medium tracking-tight sm:text-4xl">
-                  {contest.title}
-                </h1>
-                <p className="max-w-2xl text-sm leading-6 text-muted-foreground sm:text-[15px]">
-                  {contest.description ??
-                    "A ranked coding contest with live standings, timed problems, and post-round review."}
-                </p>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-3">
-                {quickFacts.map((item) => (
-                  <div
-                    key={item.label}
-                    className="rounded-2xl border border-border/70 bg-background/60 px-4 py-3 backdrop-blur-sm"
+              {isPast && (
+                <>
+                  <Link
+                    prefetch={false}
+                    href="#problem-set"
+                    className={cn(
+                      buttonVariants({ variant: "outline" }),
+                      "flex-1",
+                    )}
                   >
-                    <div className="mb-2 flex items-center gap-2 text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
-                      <item.icon size={12} />
-                      {item.label}
-                    </div>
-                    <p className="text-sm font-medium leading-5">
-                      {item.value}
-                    </p>
-                  </div>
-                ))}
-              </div>
+                    Problems
+                  </Link>
+                  <Link
+                    prefetch={false}
+                    href="#leaderboard"
+                    className={cn(
+                      buttonVariants({ variant: "outline" }),
+                      "flex-1",
+                    )}
+                  >
+                    Rankings
+                  </Link>
+                </>
+              )}
             </div>
 
-            <div className="flex flex-col justify-between gap-4 rounded-[24px] border border-border/70 bg-background/65 p-5 backdrop-blur-sm">
-              <div>
-                <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
-                  {heroTitle}
-                </p>
-                <p className="mt-2 text-base font-medium leading-6">
-                  {heroBody}
-                </p>
+            {isRegistered && isUpcoming && (
+              <div className="flex items-center gap-1.5 text-xs status-success">
+                <CheckCircle size={14} />
+                <span>Registered</span>
               </div>
-
-              <div className="space-y-3">
-                {isUpcoming ? (
-                  <div className="rounded-2xl bg-primary/8 px-4 py-3">
-                    <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
-                      Starts in
-                    </p>
-                    <ContestCountdown
-                      target={contest.startTime}
-                      initialNow={now}
-                      className="mt-1 text-xl font-medium"
-                    />
-                  </div>
-                ) : null}
-
-                {isLive ? (
-                  <div className="rounded-2xl bg-emerald-500/8 px-4 py-3">
-                    <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
-                      Ends in
-                    </p>
-                    <ContestCountdown
-                      target={contest.endTime}
-                      initialNow={now}
-                      expiredLabel="Finalizing"
-                      className="mt-1 text-xl font-medium"
-                    />
-                  </div>
-                ) : null}
-
-                <div className="flex flex-wrap gap-2">
-                  {isUpcoming ? (
-                    <ContestRegistrationButton
-                      contestId={contest.id}
-                      contestTitle={contest.title}
-                      initialRegistered={isRegistered}
-                      className="h-10 min-w-36 flex-1"
-                    />
-                  ) : null}
-
-                  {isLive ? (
-                    <Link
-                      prefetch={false}
-                      href={
-                        primaryProblem
-                          ? `/problems/${primaryProblem.slug}`
-                          : "#problem-set"
-                      }
-                      className={cn(
-                        buttonVariants({ size: "default" }),
-                        "gradient-primary h-10 flex-1 border-0 text-white",
-                      )}
-                    >
-                      {primaryProblem ? "Start solving" : "Open contest"}
-                    </Link>
-                  ) : null}
-
-                  {isPast ? (
-                    <>
-                      <Link
-                        prefetch={false}
-                        href="#problem-set"
-                        className={cn(
-                          buttonVariants({ variant: "outline" }),
-                          "h-10 flex-1 min-w-32",
-                        )}
-                      >
-                        View Problems
-                      </Link>
-                      <Link
-                        prefetch={false}
-                        href="#leaderboard"
-                        className={cn(
-                          buttonVariants({ variant: "outline" }),
-                          "h-10 flex-1 min-w-32",
-                        )}
-                      >
-                        View Rankings
-                      </Link>
-                    </>
-                  ) : null}
-                </div>
-
-                {isRegistered && isUpcoming ? (
-                  <div className="flex items-center gap-2 text-xs text-emerald-500">
-                    <CheckCircle2 size={14} />
-                    <span>You are registered for this contest</span>
-                  </div>
-                ) : null}
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </section>
 
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="space-y-8">
-          <section id="problem-set" className="space-y-4">
-            <div className="flex items-end justify-between gap-4 border-b border-border pb-3">
+      <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
+        <div className="space-y-6">
+          <section id="problem-set" className="space-y-3">
+            <div className="flex items-center justify-between">
               <div>
-                <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
-                  Workspace
-                </p>
-                <h2 className="mt-1 text-lg font-medium">Problem Set</h2>
+                <p className="font-mono-label">Workspace</p>
+                <h2 className="text-base font-medium">Problem Set</h2>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs text-secondary">
                 {isUpcoming
-                  ? "Problems unlock when the round begins."
-                  : "Open each linked problem directly from this contest."}
+                  ? "Unlocks when the round begins."
+                  : "Open each problem directly."}
               </p>
             </div>
 
             {isUpcoming ? (
-              <div className="overflow-hidden rounded-[24px] border border-border bg-card">
-                <div className="border-b border-border px-5 py-4">
+              <div className="nothing-card">
+                <div className="border-b border-border px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <Lock size={14} className="text-muted-foreground" />
+                    <Lock size={14} className="text-secondary" />
                     <span className="text-sm font-medium">
                       Locked Until Start
                     </span>
                   </div>
                 </div>
-                <div className="space-y-3 p-5">
-                  {Array.from(
-                    { length: contest.problemCount || 4 },
-                    (_, index) => (
-                      <div
-                        key={`locked-${index}`}
-                        className="flex items-center gap-4 rounded-2xl border border-border/70 bg-muted/15 px-4 py-3"
-                      >
-                        <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-muted text-xs font-medium text-muted-foreground/40">
-                          {String.fromCharCode(65 + index)}
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <div className="h-2.5 w-28 rounded-full bg-muted/60" />
-                          <div className="mt-2 h-2.5 w-40 rounded-full bg-muted/40" />
+                <div className="p-4">
+                  <p className="font-mono-label text-xs text-disabled">
+                    [LOADING...]
+                  </p>
+                  <div className="mt-2 space-y-2">
+                    {Array.from(
+                      { length: contest.problemCount || 4 },
+                      (_, index) => (
+                        <div
+                          key={`locked-${index}`}
+                          className="flex items-center gap-3 px-3 py-2.5"
+                        >
+                          <span className="flex size-7 shrink-0 items-center justify-center font-mono text-xs text-disabled">
+                            {String.fromCharCode(65 + index)}
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm text-disabled">
+                              Problem title
+                            </p>
+                          </div>
+                          <Lock size={12} className="shrink-0 text-disabled" />
                         </div>
-                        <Lock
-                          size={12}
-                          className="shrink-0 text-muted-foreground/25"
-                        />
-                      </div>
-                    ),
-                  )}
+                      ),
+                    )}
+                  </div>
                 </div>
               </div>
             ) : contest.problems.length > 0 ? (
-              <div className="overflow-hidden rounded-[24px] border border-border bg-card">
+              <div className="nothing-card overflow-hidden">
                 {contest.problems.map((problem, index) => (
                   <Link
                     key={problem.id}
                     prefetch={false}
                     href={`/problems/${problem.slug}`}
                     className={cn(
-                      "group grid items-center gap-4 px-5 py-4 transition-colors hover:bg-muted/25 sm:grid-cols-[3rem_minmax(0,1fr)_100px_80px]",
+                      "group grid items-center gap-3 px-4 py-3 transition-colors duration-200 ease-out hover:bg-muted/50 sm:grid-cols-[2.5rem_minmax(0,1fr)_80px_70px]",
                       index !== contest.problems.length - 1 &&
                         "border-b border-border",
                     )}
                   >
-                    <div className="flex size-11 items-center justify-center rounded-2xl bg-muted text-sm font-medium">
+                    <div className="flex size-8 items-center justify-center font-mono text-xs font-medium">
                       {problem.order}
                     </div>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium transition-colors group-hover:text-primary sm:text-[15px]">
+                      <p className="truncate text-sm font-medium transition-colors duration-200 ease-out group-hover:text-primary">
                         {problem.title}
                       </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
+                      <p className="mt-0.5 text-xs text-secondary">
                         {problem.points} points
                       </p>
                     </div>
-                    <div className="text-sm font-medium tabular-nums text-muted-foreground sm:text-right">
+                    <div className="text-xs font-medium tabular-nums text-secondary sm:text-right">
                       {problem.points} pts
                     </div>
                     <div
                       className={cn(
-                        "text-xs font-medium uppercase tracking-[0.08em] sm:text-right",
+                        "text-xs font-medium sm:text-right",
                         difficultyClassName(problem.difficulty),
                       )}
                     >
@@ -443,19 +357,17 @@ export function ContestDetailClient({
                 ))}
               </div>
             ) : (
-              <div className="rounded-[24px] border border-dashed border-border px-5 py-12 text-center text-sm text-muted-foreground">
-                No problems have been linked to this contest yet.
+              <div className="nothing-card px-4 py-10 text-center text-sm text-disabled">
+                No problems linked to this contest yet.
               </div>
             )}
           </section>
 
-          <section id="leaderboard" className="space-y-4">
-            <div className="flex items-end justify-between gap-4 border-b border-border pb-3">
+          <section id="leaderboard" className="space-y-3">
+            <div className="flex items-center justify-between">
               <div>
-                <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
-                  Standings
-                </p>
-                <h2 className="mt-1 text-lg font-medium">
+                <p className="font-mono-label">Standings</p>
+                <h2 className="text-base font-medium">
                   {isLive
                     ? "Live Leaderboard"
                     : isPast
@@ -463,26 +375,26 @@ export function ContestDetailClient({
                       : "Leaderboard"}
                 </h2>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs text-secondary">
                 {isUpcoming
                   ? "Visible once the contest starts."
-                  : "Ordered by score first, then lower penalty."}
+                  : "Score first, then penalty."}
               </p>
             </div>
 
             {isUpcoming ? (
-              <div className="rounded-[24px] border border-border bg-card p-10 text-center">
-                <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-muted">
-                  <Lock size={20} className="text-muted-foreground" />
+              <div className="nothing-card p-8 text-center">
+                <div className="mx-auto flex size-10 items-center justify-center">
+                  <Lock size={18} className="text-secondary" />
                 </div>
-                <p className="mt-4 text-sm font-medium">Leaderboard Hidden</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Problems and standings unlock once the contest starts.
+                <p className="mt-3 text-sm font-medium">Leaderboard Hidden</p>
+                <p className="mt-1 text-xs text-secondary">
+                  Unlocks once the contest starts.
                 </p>
               </div>
             ) : contest.leaderboard.length > 0 ? (
-              <div className="overflow-hidden rounded-[24px] border border-border bg-card">
-                <div className="grid grid-cols-[2.75rem_minmax(0,1fr)_5rem_5rem] gap-4 border-b border-border px-5 py-3 text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+              <div className="nothing-card overflow-hidden">
+                <div className="grid grid-cols-[2.5rem_minmax(0,1fr)_4rem_4rem] gap-3 border-b border-border px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.06em] text-secondary">
                   <span className="text-center">Rank</span>
                   <span>Coder</span>
                   <span className="text-right">Score</span>
@@ -490,11 +402,11 @@ export function ContestDetailClient({
                 </div>
                 {contest.leaderboard.map((entry, index) => (
                   <Link
-                    key={`${entry.username}-${entry.rank}`}
+                    key={entry.username}
                     prefetch={false}
                     href={`/u/${entry.username}`}
                     className={cn(
-                      "group grid grid-cols-[2.75rem_minmax(0,1fr)_5rem_5rem] items-center gap-4 px-5 py-3.5 text-sm transition-colors hover:bg-muted/25",
+                      "group grid grid-cols-[2.5rem_minmax(0,1fr)_4rem_4rem] items-center gap-3 px-4 py-2.5 text-sm transition-colors duration-200 ease-out hover:bg-muted/50",
                       index !== contest.leaderboard.length - 1 &&
                         "border-b border-border",
                     )}
@@ -502,47 +414,44 @@ export function ContestDetailClient({
                     <div className="flex justify-center">
                       <RankBadge rank={entry.rank} />
                     </div>
-                    <span className="truncate font-medium text-muted-foreground transition-colors group-hover:text-primary">
+                    <span className="truncate font-medium text-secondary transition-colors duration-200 ease-out group-hover:text-primary">
                       {entry.username}
                     </span>
-                    <span className="text-right font-mono tabular-nums">
+                    <span className="text-right font-mono text-xs tabular-nums">
                       {entry.score}
                     </span>
-                    <span className="text-right font-mono text-xs tabular-nums text-muted-foreground">
+                    <span className="text-right font-mono text-xs tabular-nums text-secondary">
                       {entry.penalty}
                     </span>
                   </Link>
                 ))}
               </div>
             ) : (
-              <div className="rounded-[24px] border border-border bg-card p-10 text-center text-sm text-muted-foreground">
-                Standings will appear once participants are scored for this
-                contest.
+              <div className="nothing-card p-8 text-center text-sm text-disabled">
+                Standings will appear once participants are scored.
               </div>
             )}
           </section>
 
-          <section className="space-y-4">
-            <div className="border-b border-border pb-3">
-              <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
-                Format
-              </p>
-              <h2 className="mt-1 text-lg font-medium">Rules</h2>
+          <section className="space-y-3">
+            <div>
+              <p className="font-mono-label">Format</p>
+              <h2 className="text-base font-medium">Rules</h2>
             </div>
 
-            <div className="overflow-hidden rounded-[24px] border border-border bg-card">
+            <div className="nothing-card">
               {rules.map((rule, index) => (
                 <div
                   key={rule}
                   className={cn(
-                    "flex gap-4 px-5 py-4",
+                    "flex gap-3 px-4 py-3",
                     index !== rules.length - 1 && "border-b border-border",
                   )}
                 >
-                  <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-xl bg-muted text-xs font-medium text-muted-foreground tabular-nums">
+                  <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center font-mono text-[11px] font-medium text-secondary tabular-nums">
                     {index + 1}
                   </span>
-                  <p className="text-sm leading-6 text-muted-foreground">
+                  <p className="text-sm leading-relaxed text-secondary">
                     {rule}
                   </p>
                 </div>
@@ -551,80 +460,88 @@ export function ContestDetailClient({
           </section>
         </div>
 
-        <aside className="space-y-5 lg:sticky lg:top-20 lg:self-start">
-          <div className="overflow-hidden rounded-[24px] border border-border bg-card">
-            <div className="border-b border-border px-5 py-4">
+        <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
+          <div className="nothing-card">
+            <div className="border-b border-border px-4 py-3">
               <h3 className="text-sm font-medium">Contest Snapshot</h3>
             </div>
-            <div className="space-y-1 p-3">
-              {snapshotItems.map((item) => (
+            <div className="space-y-0.5 p-3">
+              {[
+                {
+                  label: "Problems",
+                  value: `${contest.problemCount} linked`,
+                  icon: FileText,
+                  color: "text-primary",
+                },
+                {
+                  label: "Scoring",
+                  value: "Score, then penalty",
+                  icon: Target,
+                  color: "status-success",
+                },
+                {
+                  label: "Status",
+                  value: isLive
+                    ? "Running now"
+                    : isUpcoming
+                      ? "Registration open"
+                      : "Contest closed",
+                  icon: Trophy,
+                  color: "status-warning",
+                },
+              ].map((item) => (
                 <div
                   key={item.label}
-                  className="flex items-center gap-3 rounded-2xl px-3 py-3 hover:bg-muted/25"
+                  className="flex items-center gap-3 rounded px-3 py-2.5 transition-colors duration-200 ease-out hover:bg-muted/50"
                 >
-                  <div
-                    className={cn(
-                      "flex size-10 items-center justify-center rounded-2xl bg-muted",
-                      item.color,
-                    )}
-                  >
-                    <item.icon size={16} />
+                  <div className="flex size-8 items-center justify-center font-mono">
+                    <item.icon size={14} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
-                      {item.label}
-                    </p>
-                    <p className="mt-1 text-sm font-medium">{item.value}</p>
+                    <p className="text-[11px] font-mono-label">{item.label}</p>
+                    <p className="text-xs font-medium">{item.value}</p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-[24px] border border-border bg-card">
-            <div className="border-b border-border px-5 py-4">
-              <div className="flex items-center gap-2">
-                <FileText size={14} className="text-muted-foreground" />
-                <h3 className="text-sm font-medium">Access</h3>
-              </div>
-            </div>
-            <div className="space-y-3 p-5 text-sm text-muted-foreground">
-              <p>
-                {isUpcoming
-                  ? "Register now to hold your spot before the round opens."
-                  : isLive
-                    ? "The contest is active. Open the first problem and start submitting."
-                    : "This round is closed, but the archive remains available for review."}
-              </p>
+          <div className="nothing-card p-4 text-sm text-secondary">
+            <p>
+              {isUpcoming
+                ? "Register now to hold your spot before the round opens."
+                : isLive
+                  ? "The contest is active. Open the first problem and start submitting."
+                  : "This round is closed, but the archive remains available for review."}
+            </p>
 
-              <div className="flex flex-col gap-2">
-                {isLive ? (
-                  <Link
-                    prefetch={false}
-                    href={
-                      primaryProblem
-                        ? `/problems/${primaryProblem.slug}`
-                        : "#problem-set"
-                    }
-                    className={cn(
-                      buttonVariants({ size: "default" }),
-                      "gradient-primary border-0 text-white",
-                    )}
-                  >
-                    {primaryProblem ? "Open first problem" : "Open contest"}
-                  </Link>
-                ) : null}
+            <div className="mt-3 flex flex-col gap-2">
+              {isLive && (
+                <Link
+                  prefetch={false}
+                  href={
+                    primaryProblem
+                      ? `/problems/${primaryProblem.slug}`
+                      : "#problem-set"
+                  }
+                  className={cn(
+                    buttonVariants({ size: "default" }),
+                    "bg-primary text-primary-foreground hover:bg-primary/90",
+                  )}
+                >
+                  {primaryProblem ? "Open first problem" : "Open contest"}
+                </Link>
+              )}
 
-                {isPast ? (
-                  <Link
-                    prefetch={false}
-                    href="#problem-set"
-                    className={buttonVariants({ variant: "outline" })}
-                  >
-                    Browse problem set
-                  </Link>
-                ) : null}
-              </div>
+              {isPast && (
+                <Link
+                  prefetch={false}
+                  href="#problem-set"
+                  className={buttonVariants({ variant: "outline" })}
+                >
+                  Browse problem set
+                </Link>
+              )}
             </div>
           </div>
         </aside>

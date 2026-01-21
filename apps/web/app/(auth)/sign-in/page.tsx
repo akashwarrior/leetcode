@@ -2,12 +2,11 @@
 
 import { mutate } from "swr";
 import { useRouter } from "next/navigation";
-import { useState, ViewTransition } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { EyeIcon, EyeOffIcon, LoaderCircle } from "lucide-react";
+import { Eye, EyeSlash, Spinner } from "@phosphor-icons/react";
 import { signIn } from "@/lib/auth/client";
-import { TextEffect } from "@/components/ui/text-effect";
 import { toast } from "sonner";
 import {
   Field,
@@ -28,42 +27,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
-const blurSlideVariants = {
-  container: {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.01 },
-    },
-    exit: {
-      transition: { staggerChildren: 0.01, staggerDirection: 1 },
-    },
-  },
-  item: {
-    hidden: {
-      opacity: 0,
-      filter: "blur(10px) brightness(0%)",
-      y: 0,
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      filter: "blur(0px) brightness(100%)",
-      transition: {
-        duration: 0.4,
-      },
-    },
-    exit: {
-      opacity: 0,
-      y: -30,
-      filter: "blur(10px) brightness(0%)",
-      transition: {
-        duration: 0.4,
-      },
-    },
-  },
-};
 
 export default function SignInPage() {
   const router = useRouter();
@@ -90,7 +53,7 @@ export default function SignInPage() {
       }
       if (data?.user) {
         await mutate("session");
-        router.push("/");
+        router.replace("/");
       }
     } finally {
       setIsLoading(false);
@@ -117,18 +80,10 @@ export default function SignInPage() {
   return (
     <Card>
       <CardHeader className="text-center">
-        <ViewTransition name="auth_title">
-          <CardTitle>
-            <TextEffect
-              className="text-2xl font-medium"
-              variants={blurSlideVariants}
-            >
-              Welcome back
-            </TextEffect>
-          </CardTitle>
-        </ViewTransition>
-
-        <CardDescription className="text-sm">
+        <CardTitle className="text-2xl font-medium tracking-tight text-primary">
+          Welcome back
+        </CardTitle>
+        <CardDescription className="text-sm text-secondary">
           Sign in to continue your practice
         </CardDescription>
       </CardHeader>
@@ -136,69 +91,59 @@ export default function SignInPage() {
       <CardContent>
         <form onSubmit={handleLogin}>
           <FieldGroup>
-            <ViewTransition name="auth_field_email">
-              <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input
-                  id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  type="email"
-                  placeholder="name@example.com"
+            <Field>
+              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <Input
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                type="email"
+                placeholder="name@example.com"
+                required
+                disabled={busy}
+                className="h-10 rounded-lg"
+              />
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="password">Password</FieldLabel>
+              <InputGroup>
+                <InputGroupInput
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  type={showPassword ? "text" : "password"}
+                  placeholder={showPassword ? "password" : "••••••••"}
                   required
                   disabled={busy}
                   className="h-10 rounded-lg"
                 />
-              </Field>
-            </ViewTransition>
-
-            <ViewTransition name="auth_field_password">
-              <Field>
-                <FieldLabel htmlFor="password">Password</FieldLabel>
-                <InputGroup>
-                  <InputGroupInput
-                    id="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    type={showPassword ? "text" : "password"}
-                    placeholder={showPassword ? "password" : "••••••••"}
-                    required
+                <InputGroupAddon align="inline-end">
+                  <Button
+                    type="button"
+                    size="icon-sm"
+                    variant="ghost"
                     disabled={busy}
-                    className="h-10 rounded-lg"
-                  />
-                  <InputGroupAddon align="inline-end">
-                    <Button
-                      type="button"
-                      size="icon-sm"
-                      variant="ghost"
-                      disabled={busy}
-                      onClick={() => setShowPassword((prev) => !prev)}
-                    >
-                      {!showPassword ? (
-                        <EyeIcon size={14} />
-                      ) : (
-                        <EyeOffIcon size={14} />
-                      )}
-                    </Button>
-                  </InputGroupAddon>
-                </InputGroup>
-              </Field>
-            </ViewTransition>
+                    onClick={() => setShowPassword((prev) => !prev)}
+                  >
+                    {!showPassword ? <Eye size={14} /> : <EyeSlash size={14} />}
+                  </Button>
+                </InputGroupAddon>
+              </InputGroup>
+            </Field>
 
             <Field>
-              <ViewTransition name="auth_submit">
-                <Button
-                  type="submit"
-                  disabled={busy}
-                  className="w-full gradient-primary text-white font-medium h-10 rounded-lg"
-                >
-                  {isLoading ? (
-                    <LoaderCircle className="size-4 animate-spin" />
-                  ) : (
-                    "Sign in"
-                  )}
-                </Button>
-              </ViewTransition>
+              <Button
+                type="submit"
+                disabled={busy}
+                className="w-full bg-primary text-primary-foreground hover:opacity-85 font-medium h-10 rounded-lg"
+              >
+                {isLoading ? (
+                  <Spinner className="size-4 animate-spin" />
+                ) : (
+                  "Sign in"
+                )}
+              </Button>
             </Field>
 
             <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card text-xs">
@@ -214,7 +159,7 @@ export default function SignInPage() {
                 className="border-border/50 h-10 rounded-lg font-medium"
               >
                 {isGoogleLoading ? (
-                  <LoaderCircle className="size-4 animate-spin" />
+                  <Spinner className="size-4 animate-spin" />
                 ) : (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -235,11 +180,11 @@ export default function SignInPage() {
       </CardContent>
 
       <CardFooter>
-        <p className="text-sm text-muted-foreground m-auto">
+        <p className="text-sm text-secondary m-auto">
           Don&apos;t have an account?{" "}
           <span
             onClick={() => !busy && router.replace("/sign-up")}
-            className="cursor-pointer font-medium text-primary hover:text-primary/80 transition-colors"
+            className="cursor-pointer font-medium text-primary hover:opacity-80 transition-opacity"
           >
             Sign up
           </span>

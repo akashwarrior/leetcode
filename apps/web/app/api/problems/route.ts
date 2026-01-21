@@ -5,9 +5,16 @@ import { auth } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
-  const skip = parseInt(searchParams.get("skip") ?? "0");
-  const take = parseInt(searchParams.get("limit") ?? "20");
-  const difficulty = (searchParams.get("difficulty") as Difficulty) ?? null;
+  const skip = Math.max(0, parseInt(searchParams.get("skip") ?? "0") || 0);
+  const take = Math.min(
+    Math.max(1, parseInt(searchParams.get("limit") ?? "20") || 20),
+    50,
+  );
+  const difficultyParam = searchParams.get("difficulty");
+  const difficulty =
+    difficultyParam && difficultyParam in Difficulty
+      ? (difficultyParam as Difficulty)
+      : null;
   const tags = searchParams.getAll("tags");
   const search = searchParams.get("search") ?? null;
 
@@ -33,7 +40,7 @@ export async function GET(req: NextRequest) {
       },
       orderBy: [{ title: "asc" }],
       skip,
-      take: Math.min(take, 50),
+      take,
       select: problemSelect,
     }),
 
@@ -64,7 +71,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(
       problems.map((p) => ({
         ...p,
-        userStatus: userProblemsMap.get(p.id),
+        status: userProblemsMap.get(p.id),
       })),
     );
   }

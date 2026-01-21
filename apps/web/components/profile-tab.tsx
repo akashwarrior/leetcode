@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { updateUser } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
-import { LoaderCircle, Check, Camera } from "lucide-react";
+import { Spinner, Check, Camera } from "@phosphor-icons/react";
 
 export function ProfileTab({ user }: { user: Session["user"] }) {
   const [name, setName] = useState<string>(user.name ?? "");
@@ -31,51 +31,60 @@ export function ProfileTab({ user }: { user: Session["user"] }) {
       username,
       githubUrl,
     });
-    setSaving(false);
 
     if (error) {
+      setSaving(false);
       toast.error(error.message || "Failed to update profile");
       return;
     }
 
     await mutate("session");
     setSaved(true);
+    setSaving(false);
     toast.success("Profile updated successfully");
     setTimeout(() => setSaved(false), 2000);
   }
+
+  const handleFieldChange = () => {
+    if (saved) {
+      setSaved(false);
+    }
+  };
 
   return (
     <form className="space-y-6" onSubmit={handleSave}>
       <div className="flex items-center gap-5 pb-6 border-b border-border">
         <div className="relative group shrink-0">
-          <div className="flex size-[72px] items-center justify-center rounded-xl bg-linear-to-br from-primary/20 to-purple-500/20 text-2xl font-bold text-primary select-none overflow-hidden object-cover">
+          <div className="flex size-[72px] items-center justify-center rounded-lg bg-muted text-2xl font-medium text-primary select-none overflow-hidden object-cover">
             {user.image ? (
               <Image
                 src={user.image}
                 alt="Avatar"
                 width={72}
                 height={72}
-                className="size-full object-cover"
+                className="size-full object-cover capitalize"
               />
             ) : (
-              user.name[0]?.toUpperCase()
+              user.name.charAt(0)
             )}
           </div>
           <button
             type="button"
-            className="absolute inset-0 flex items-center justify-center rounded-xl bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute inset-0 flex items-center justify-center rounded-lg bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity"
             onClick={() => {
               toast.info(
                 "Avatar uploads are disabled in this environment. Please link a provider like Google to change your avatar.",
               );
             }}
           >
-            <Camera size={16} className="text-muted-foreground" />
+            <Camera size={16} className="text-secondary" />
           </button>
         </div>
         <div className="min-w-0">
-          <p className="text-sm font-medium truncate">{user.name}</p>
-          <p className="text-xs text-muted-foreground mt-0.5 mb-3 truncate">
+          <p className="text-sm font-medium text-primary truncate">
+            {user.name ?? user.email}
+          </p>
+          <p className="text-xs text-secondary mt-0.5 mb-3 truncate">
             @{user.username}
           </p>
         </div>
@@ -83,12 +92,13 @@ export function ProfileTab({ user }: { user: Session["user"] }) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-            Full name
-          </label>
+          <label className="font-mono-label mb-1.5 block">Full name</label>
           <Input
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              setName(e.target.value);
+              handleFieldChange();
+            }}
             className="h-9 rounded-lg text-sm"
             placeholder="Your name"
             required
@@ -96,12 +106,13 @@ export function ProfileTab({ user }: { user: Session["user"] }) {
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-            Username
-          </label>
+          <label className="font-mono-label mb-1.5 block">Username</label>
           <Input
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={(e) => {
+              setUsername(e.target.value);
+              handleFieldChange();
+            }}
             className="h-9 rounded-lg text-sm"
             placeholder="username"
             required
@@ -109,9 +120,7 @@ export function ProfileTab({ user }: { user: Session["user"] }) {
           />
         </div>
         <div className="sm:col-span-2">
-          <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-            Email address
-          </label>
+          <label className="font-mono-label mb-1.5 block">Email address</label>
           <Input
             value={user.email}
             type="email"
@@ -121,12 +130,13 @@ export function ProfileTab({ user }: { user: Session["user"] }) {
           />
         </div>
         <div className="sm:col-span-2">
-          <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-            GitHub URL
-          </label>
+          <label className="font-mono-label mb-1.5 block">GitHub URL</label>
           <Input
             value={githubUrl}
-            onChange={(e) => setGithubUrl(e.target.value)}
+            onChange={(e) => {
+              setGithubUrl(e.target.value);
+              handleFieldChange();
+            }}
             placeholder="https://github.com/your-profile"
             className="h-9 rounded-lg text-sm"
             disabled={saving}
@@ -141,12 +151,12 @@ export function ProfileTab({ user }: { user: Session["user"] }) {
           className={cn(
             "h-9 rounded-lg text-sm font-medium px-5 gap-2",
             saved
-              ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
-              : "gradient-primary border-0 text-white",
+              ? "bg-success/10 status-success border border-success/20"
+              : "bg-primary text-primary-foreground hover:opacity-85",
           )}
         >
           {saving ? (
-            <LoaderCircle className="size-4 animate-spin" />
+            <Spinner className="size-4 animate-spin" />
           ) : saved ? (
             <>
               <Check size={14} /> Saved
