@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useProblems } from "@/hooks/use-problems";
-import { DEFAULT_PAGE_SIZE } from "@/lib/problems-keys";
 import {
   InputGroup,
   InputGroupAddon,

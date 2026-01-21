@@ -12,8 +12,6 @@ import {
   Medal,
   Star,
   Lightning,
-  Target,
-  TrendUp,
 } from "@phosphor-icons/react/dist/ssr";
 
 type ProfileUser = {
@@ -37,26 +35,31 @@ type DonutChartProps = {
   easySolved: number;
   mediumSolved: number;
   hardSolved: number;
-  totalProblems: number;
+  totalEasy: number;
+  totalMedium: number;
+  totalHard: number;
 };
 
 function DonutChart({
   easySolved,
   mediumSolved,
   hardSolved,
-  totalProblems,
+  totalEasy,
+  totalMedium,
+  totalHard,
 }: DonutChartProps) {
   const radius = 44;
-  const strokeWidth = 7;
+  const strokeWidth = 8;
   const circumference = 2 * Math.PI * radius;
+  const totalProblems = totalEasy + totalMedium + totalHard;
   const segments = [
-    { count: easySolved, color: "var(--status-success)" },
-    { count: mediumSolved, color: "var(--status-warning)" },
-    { count: hardSolved, color: "var(--status-error)" },
+    { solved: easySolved, total: totalEasy, color: "var(--success)" },
+    { solved: mediumSolved, total: totalMedium, color: "var(--warning)" },
+    { solved: hardSolved, total: totalHard, color: "var(--error)" },
   ];
   let offset = 0;
   const arcs = segments.map((seg) => {
-    const fraction = seg.count / totalProblems;
+    const fraction = seg.total > 0 ? seg.solved / totalProblems : 0;
     const dash = circumference * fraction;
     const gap = circumference - dash;
     const currentOffset = offset;
@@ -77,8 +80,7 @@ function DonutChart({
           cy="55"
           r={radius}
           fill="none"
-          stroke="currentColor"
-          className="text-disabled"
+          stroke="var(--text-disabled)"
           strokeWidth={strokeWidth}
         />
         {arcs.map((arc, i) => (
@@ -92,8 +94,6 @@ function DonutChart({
             strokeWidth={strokeWidth}
             strokeDasharray={`${arc.dash} ${arc.gap}`}
             strokeDashoffset={-arc.offset}
-            strokeLinecap="round"
-            className="transition-all duration-500 ease-out"
           />
         ))}
       </svg>
@@ -301,7 +301,9 @@ export async function ProfileOverview({ user }: { user: ProfileUser }) {
               easySolved={user.solvedEasy}
               mediumSolved={user.solvedMedium}
               hardSolved={user.solvedHard}
-              totalProblems={totalProblems}
+              totalEasy={easy}
+              totalMedium={medium}
+              totalHard={hard}
             />
             <div className="flex-1 w-full space-y-3">
               {[
@@ -327,8 +329,8 @@ export async function ProfileOverview({ user }: { user: ProfileUser }) {
                   text: "status-error",
                 },
               ].map((d) => (
-                <div key={d.label}>
-                  <div className="flex items-center justify-between text-xs mb-1.5">
+                <div key={d.label} className="space-y-1.5">
+                  <div className="flex items-center justify-between">
                     <span className={cn("font-mono-label", d.text)}>
                       {d.label}
                     </span>
@@ -337,7 +339,7 @@ export async function ProfileOverview({ user }: { user: ProfileUser }) {
                       {d.total}
                     </span>
                   </div>
-                  <div className="h-1 overflow-hidden">
+                  <div className="h-1.5 w-full bg-(--text-disabled)/20 rounded-full overflow-hidden">
                     <div
                       className={cn(
                         "h-full transition-all duration-500 ease-out",

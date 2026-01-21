@@ -26,10 +26,6 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-error: var(--error);
-  --color-code-keyword: var(--code-keyword);
-  --color-code-function: var(--code-function);
-  --color-code-string: var(--code-string);
-  --color-code-comment: var(--code-comment);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --radius-sm: 4px;
@@ -63,10 +59,6 @@
   --success: #2d8a4e;
   --warning: #c47a2a;
   --error: #d71921;
-  --code-keyword: #6b3fa0;
-  --code-function: #2563eb;
-  --code-string: #2d8a4e;
-  --code-comment: #6b6b6b;
 
   --text-display: #1a1a1a;
   --text-primary: #1a1a1a;
@@ -96,10 +88,6 @@
   --success: #34d399;
   --warning: #fbbf24;
   --error: #d71921;
-  --code-keyword: #c084fc;
-  --code-function: #60a5fa;
-  --code-string: #34d399;
-  --code-comment: #6b6b6b;
 
   --text-display: #e8e8e8;
   --text-primary: #d4d4d4;

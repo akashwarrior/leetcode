@@ -58,13 +58,6 @@ export function useProblems() {
       : false;
 
   const loadMore = () => {
-    console.log({
-      hasMore,
-      data,
-      newData: data?.[(data?.length || 1) - 1],
-      isLoading,
-      isValidating,
-    });
     if (!hasMore || isLoading || isValidating) {
       return;
     }

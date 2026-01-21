@@ -73,7 +73,6 @@ export default async function ContestDetailPage({
           penalty: entry.penalty,
         })),
       }}
-      isAuthed={Boolean(session?.user?.id)}
       isRegistered={Boolean(participation)}
       initialNow={now.toISOString()}
     />

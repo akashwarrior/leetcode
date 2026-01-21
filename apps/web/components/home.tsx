@@ -1,4 +1,4 @@
-import { prisma, type ProblemStatus } from "@codearena/db";
+import { prisma } from "@codearena/db";
 import type { Session } from "@/lib/auth";
 import Link from "next/link";
 import { cn } from "@/lib/utils";

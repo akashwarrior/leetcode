@@ -56,7 +56,6 @@ type ContestDetailClientProps = {
     problems: ContestProblemItem[];
     leaderboard: LeaderboardEntry[];
   };
-  isAuthed: boolean;
   isRegistered: boolean;
   initialNow: string;
 };

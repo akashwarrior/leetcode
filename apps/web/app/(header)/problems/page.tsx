@@ -2,7 +2,7 @@ import { ProblemList } from "@/components/problem-list";
 import { getCachedInitialProblemPage } from "@/lib/db/queries";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { prisma, type ProblemStatus } from "@codearena/db";
+import { prisma } from "@codearena/db";
 import { SWRConfig } from "swr";
 import { unstable_serialize } from "swr/infinite";
 import { getProblemsKey } from "@/lib/problems-keys";

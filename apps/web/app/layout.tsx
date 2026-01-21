@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Space_Mono } from "next/font/google";
+import { Space_Grotesk, Space_Mono, Doto } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
@@ -17,6 +17,12 @@ const spaceMono = Space_Mono({
   weight: ["400", "700"],
 });
 
+const doto = Doto({
+  subsets: ["latin"],
+  variable: "--font-display",
+  weight: ["400", "700"],
+});
+
 export const metadata: Metadata = {
   title: "CodeArena",
   description: "Practice coding problems and compete for contest rankings",
@@ -30,7 +36,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("antialiased", spaceGrotesk.variable, spaceMono.variable)}
+      className={cn(
+        "antialiased",
+        spaceGrotesk.variable,
+        spaceMono.variable,
+        doto.variable,
+      )}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-sans">
