@@ -20,7 +20,7 @@ function getLevel(count: number) {
 
 function getWeeks(data: Pick<Activity, "date" | "submissionCount">[]) {
   const countByIndex = new Map(
-    data.map((d) => [d.date.toISOString().split("T")[0], d.submissionCount]),
+    data.map((d) => [new Date(d.date).toISOString().split("T")[0], d.submissionCount]),
   );
   const today = new Date();
   const weeks: Pick<Activity, "date" | "submissionCount">[][] = [];
@@ -89,7 +89,7 @@ export function ActivityHeatmap({ data }: ActivityHeatmapProps) {
     let max = 0;
     let current = 0;
     const sorted = [...data].sort(
-      (left, right) => left.date.getTime() - right.date.getTime(),
+      (left, right) => new Date(left.date).getTime() - new Date(right.date).getTime(),
     );
 
     for (const day of sorted) {
@@ -172,7 +172,7 @@ export function ActivityHeatmap({ data }: ActivityHeatmapProps) {
             ))}
           </div>
 
-          <div className="flex gap-0.5 overflow-x-auto">
+          <div className="flex gap-0.5 overflow-x-auto overflow-hidden">
             {weeks.map((week, wi) => (
               <div key={wi} className="flex flex-col gap-0.5">
                 {week.map(({ date, submissionCount }, idx) => {

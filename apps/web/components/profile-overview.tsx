@@ -1,12 +1,11 @@
 import Image from "next/image";
-import { prisma, type User } from "@codearena/db";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ActivityHeatmap } from "@/components/activity-heatmap";
-import { getProblemTotals } from "@/lib/db/queries";
+import { getProblemTotals, getUserActivityHeatmap } from "@/lib/db/queries";
 import {
   Trophy,
   CalendarClock,
@@ -15,8 +14,24 @@ import {
   Zap,
   Target,
   TrendingUp,
-  MessageSquare,
 } from "lucide-react";
+
+type ProfileUser = {
+  id: string;
+  name: string;
+  username: string;
+  image: string | null;
+  streak: number;
+  githubUrl: string | null;
+  rating: number;
+  globalRank: number | null;
+  solvedEasy: number;
+  solvedMedium: number;
+  solvedHard: number;
+  _count: {
+    participations: number;
+  };
+};
 
 type DonutChartProps = {
   easySolved: number;
@@ -94,28 +109,13 @@ function DonutChart({
   );
 }
 
-export async function ProfileOverview({
-  user,
-}: {
-  user: User & {
-    _count: {
-      participations: number;
-    };
-  };
-}) {
+export async function ProfileOverview({ user }: { user: ProfileUser }) {
   const totalSolved = user.solvedEasy + user.solvedMedium + user.solvedHard;
 
-  const [problemTotals, attemptedCount, session] = await Promise.all([
+  const [problemTotals, session, activity] = await Promise.all([
     getProblemTotals(),
-    prisma.submission.count({
-      where: {
-        userId: user.id,
-        status: {
-          not: "ACCEPTED",
-        },
-      },
-    }),
     auth.api.getSession({ headers: await headers() }),
+    getUserActivityHeatmap(user.id),
   ]);
 
   const { easy, hard, medium, total: totalProblems } = problemTotals;
@@ -357,13 +357,6 @@ export async function ProfileOverview({
                   </div>
                 </div>
               ))}
-              <p className="text-xs text-muted-foreground pt-4 border-t border-border">
-                Currently attempting:{" "}
-                <span className="font-semibold text-foreground tabular-nums">
-                  {attemptedCount}
-                </span>{" "}
-                problem{attemptedCount !== 1 ? "s" : ""}
-              </p>
             </div>
           </div>
         </div>
@@ -376,67 +369,39 @@ export async function ProfileOverview({
             <span className="text-sm font-semibold">Activity</span>
           </div>
           <div className="mx-2">
-            <ActivityHeatmap data={[]} />
+            <ActivityHeatmap data={activity} />
           </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          {[
-            {
-              title: "Contest Stats",
-              icon: Trophy,
-              bg: "bg-amber-500/10",
-              color: "text-amber-500",
-              items: [
-                { label: "Rating", value: "1,484" },
-                {
-                  label: "Global Ranking",
-                  value: `${user.rating ? `#${user.rating}` : "N/A"}`,
-                },
-                { label: "Attended", value: `${user._count.participations}` },
-                { label: "Top", value: "49.4%" },
-              ],
-            },
-            {
-              title: "Community",
-              icon: MessageSquare,
-              bg: "bg-primary/10",
-              color: "text-primary",
-              items: [
-                { label: "Solutions Shared", value: "12" },
-                { label: "Discussions", value: "5" },
-                { label: "Reputation", value: "142" },
-                { label: "Active Days", value: "60" },
-              ],
-            },
-          ].map((section) => (
-            <div key={section.title} className="surface-card rounded-2xl p-5">
-              <div className="flex items-center gap-2.5 mb-4">
-                <div
-                  className={cn(
-                    "flex size-7 items-center justify-center rounded-lg",
-                    section.bg,
-                  )}
-                >
-                  <section.icon size={14} className={section.color} />
-                </div>
-                <h2 className="text-sm font-semibold">{section.title}</h2>
-              </div>
-              <div className="space-y-3">
-                {section.items.map((item) => (
-                  <div
-                    key={item.label}
-                    className="flex items-center justify-between text-sm"
-                  >
-                    <span className="text-muted-foreground">{item.label}</span>
-                    <span className="font-semibold tabular-nums">
-                      {item.value}
-                    </span>
-                  </div>
-                ))}
-              </div>
+        <div className="surface-card rounded-2xl p-5">
+          <div className="flex items-center gap-2.5 mb-4">
+            <div className="flex size-7 items-center justify-center rounded-lg bg-amber-500/10">
+              <Trophy size={14} className="text-amber-500" />
             </div>
-          ))}
+            <h2 className="text-sm font-semibold">Contest Stats</h2>
+          </div>
+          <div className="space-y-3">
+            {[
+              { label: "Rating", value: user.rating.toString() },
+              {
+                label: "Global Ranking",
+                value: user.globalRank ? `#${user.globalRank}` : "N/A",
+              },
+              {
+                label: "Attended",
+                value: user._count.participations.toString(),
+              },
+              { label: "Streak", value: `${user.streak} days` },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="flex items-center justify-between text-sm"
+              >
+                <span className="text-muted-foreground">{item.label}</span>
+                <span className="font-semibold tabular-nums">{item.value}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

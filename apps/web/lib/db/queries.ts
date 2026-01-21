@@ -168,3 +168,152 @@ export const getUserActivityHeatmap = unstable_cache(
   ["user-activity-heatmap"],
   { tags: ["activity"] },
 );
+
+const CONTEST_LIST_LIMIT = 15;
+
+export const getCachedContestList = unstable_cache(
+  async () => {
+    const contests = await prisma.contest.findMany({
+      where: { isHidden: false },
+      orderBy: { startTime: "desc" },
+      take: CONTEST_LIST_LIMIT,
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        startTime: true,
+        endTime: true,
+        _count: {
+          select: {
+            problems: true,
+            participations: true,
+          },
+        },
+      },
+    });
+
+    return contests.map((c) => ({
+      ...c,
+      startTime: c.startTime.toISOString(),
+      endTime: c.endTime.toISOString(),
+    }));
+  },
+  ["contest-list"],
+  { tags: ["contests"] },
+);
+
+export const getCachedTopUsers = unstable_cache(
+  async () => {
+    return prisma.user.findMany({
+      orderBy: [{ rating: "desc" }, { username: "asc" }],
+      take: 5,
+      select: {
+        username: true,
+        rating: true,
+        globalRank: true,
+      },
+    });
+  },
+  ["top-users"],
+  { tags: ["users"] },
+);
+
+export const getCachedContestDetail = unstable_cache(
+  async (contestIdOrSlug: string) => {
+    const contest = await prisma.contest.findFirst({
+      where: {
+        isHidden: false,
+        OR: [{ id: contestIdOrSlug }, { slug: contestIdOrSlug }],
+      },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        description: true,
+        startTime: true,
+        endTime: true,
+        _count: {
+          select: {
+            problems: true,
+            participations: true,
+          },
+        },
+        problems: {
+          orderBy: { order: "asc" },
+          select: {
+            order: true,
+            points: true,
+            problem: {
+              select: {
+                id: true,
+                slug: true,
+                title: true,
+                difficulty: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!contest) return null;
+
+    return {
+      ...contest,
+      startTime: contest.startTime.toISOString(),
+      endTime: contest.endTime.toISOString(),
+    };
+  },
+  ["contest-detail"],
+  { tags: ["contests"] },
+);
+
+export const getCachedContestLeaderboard = unstable_cache(
+  async (contestId: string) => {
+    return prisma.contestParticipation.findMany({
+      where: { contestId },
+      orderBy: [{ score: "desc" }, { penalty: "asc" }, { registeredAt: "asc" }],
+      take: 20,
+      select: {
+        rank: true,
+        score: true,
+        penalty: true,
+        user: {
+          select: {
+            username: true,
+          },
+        },
+      },
+    });
+  },
+  ["contest-leaderboard"],
+  { tags: ["contests"] },
+);
+
+export const getCachedUserProfile = unstable_cache(
+  async (username: string) => {
+    return prisma.user.findFirst({
+      where: { username },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        image: true,
+        streak: true,
+        githubUrl: true,
+        rating: true,
+        globalRank: true,
+        solvedEasy: true,
+        solvedMedium: true,
+        solvedHard: true,
+        _count: {
+          select: {
+            participations: true,
+          },
+        },
+      },
+    });
+  },
+  ["user-profile"],
+  { tags: ["users"], revalidate: 60 * 60 },
+);

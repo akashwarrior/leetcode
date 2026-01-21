@@ -1,5 +1,5 @@
 import { ProfileOverview } from "@/components/profile-overview";
-import { prisma } from "@codearena/db";
+import { getCachedUserProfile } from "@/lib/db/queries";
 import { notFound } from "next/navigation";
 
 export default async function UserProfilePage({
@@ -9,18 +9,7 @@ export default async function UserProfilePage({
 }) {
   const { username } = await params;
 
-  const user = await prisma.user.findFirst({
-    where: {
-      username: username,
-    },
-    include: {
-      _count: {
-        select: {
-          participations: true,
-        },
-      },
-    },
-  });
+  const user = await getCachedUserProfile(username);
 
   if (!user) {
     notFound();
