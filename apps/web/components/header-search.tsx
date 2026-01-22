@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Kbd } from "@/components/ui/kbd";
 import { useProblems } from "@/hooks/use-problems";
@@ -26,11 +26,11 @@ import {
   CommandList,
   CommandSeparator,
   CommandShortcut,
-} from "./ui/command";
+} from "@/components/ui/command";
 
 export function HeaderSearch() {
   const [open, setOpen] = useState(false);
-  const { problems, search, setSearch } = useProblems();
+  const { problems, search, setSearch } = useProblems({});
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -78,7 +78,7 @@ export function HeaderSearch() {
           }
         }}
       >
-        <Command loop>
+        <Command loop className="rounded-xl!">
           <CommandInput
             value={search}
             onValueChange={setSearch}
@@ -94,7 +94,7 @@ export function HeaderSearch() {
               {[
                 { label: "Home", href: "/", icon: House },
                 { label: "Problems", href: "/problems", icon: FileText },
-                { label: "Contest", href: "/contest", icon: Trophy },
+                { label: "Contests", href: "/contests", icon: Trophy },
                 { label: "Settings", href: "/settings", icon: Gear },
                 {
                   label: "Profile",

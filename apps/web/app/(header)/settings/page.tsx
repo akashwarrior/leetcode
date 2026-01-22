@@ -28,7 +28,7 @@ export default async function SettingsPage() {
     <div className="max-w-3xl mx-auto pb-10">
       <div className="mb-8">
         <p className="font-mono-label mb-1">SETTINGS</p>
-        <h1 className="text-display text-3xl tracking-tighter">Account</h1>
+        <h1 className="text-display text-3xl tracking-tighter">Settings</h1>
         <p className="mt-2 text-sm text-secondary max-w-md">
           Manage your profile, preferences, and security settings.
         </p>

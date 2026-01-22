@@ -12,8 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { InputGroup, InputGroupAddon } from "@/components/ui/input-group";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { SearchIcon, Tick02Icon } from "@hugeicons/core-free-icons";
+import { SearchIcon, CheckIcon } from "lucide-react";
 
 function Command({
   className,
@@ -23,7 +22,7 @@ function Command({
     <CommandPrimitive
       data-slot="command"
       className={cn(
-        "flex size-full flex-col overflow-hidden bg-popover p-1 text-popover-foreground",
+        "flex size-full flex-col overflow-hidden rounded-4xl bg-popover p-1 text-popover-foreground",
         className,
       )}
       {...props}
@@ -53,7 +52,7 @@ function CommandDialog({
       </DialogHeader>
       <DialogContent
         className={cn(
-          "top-1/2 -translate-y-1/2 overflow-hidden p-0",
+          "top-1/3 translate-y-0 overflow-hidden rounded-4xl! p-0",
           className,
         )}
         showCloseButton={showCloseButton}
@@ -80,11 +79,7 @@ function CommandInput({
           {...props}
         />
         <InputGroupAddon>
-          <HugeiconsIcon
-            icon={SearchIcon}
-            strokeWidth={2}
-            className="size-4 shrink-0 opacity-50"
-          />
+          <SearchIcon className="size-4 shrink-0 opacity-50" />
         </InputGroupAddon>
       </InputGroup>
     </div>
@@ -164,11 +159,7 @@ function CommandItem({
       {...props}
     >
       {children}
-      <HugeiconsIcon
-        icon={Tick02Icon}
-        strokeWidth={2}
-        className="ml-auto opacity-0 group-has-data-[slot=command-shortcut]/command-item:hidden group-data-[checked=true]/command-item:opacity-100"
-      />
+      <CheckIcon className="ml-auto opacity-0 group-has-data-[slot=command-shortcut]/command-item:hidden group-data-[checked=true]/command-item:opacity-100" />
     </CommandPrimitive.Item>
   );
 }

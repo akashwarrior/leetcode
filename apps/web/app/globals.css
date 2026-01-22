@@ -2,6 +2,9 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+@source "../node_modules/streamdown/dist/*.js";
+@source "../node_modules/@streamdown/math/dist/*.js";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -40,27 +43,27 @@
 :root {
   --background: #f5f4f0;
   --foreground: #1a1a1a;
-  --card: #ffffff;
+  --card: #faf9f6;
   --card-foreground: #1a1a1a;
-  --popover: #ffffff;
+  --popover: #faf9f6;
   --popover-foreground: #1a1a1a;
   --primary: #1a1a1a;
   --primary-foreground: #f5f4f0;
   --secondary: #e8e7e3;
   --secondary-foreground: #1a1a1a;
   --muted: #e8e7e3;
-  --muted-foreground: #6b6b6b;
+  --muted-foreground: #7a7974;
   --accent: #e8e7e3;
   --accent-foreground: #1a1a1a;
-  --destructive: #d71921;
-  --border: #d4d3cf;
+  --destructive: #c2185b;
+  --border: #dddcd8;
   --input: #d4d3cf;
   --ring: #1a1a1a;
-  --success: #2d8a4e;
-  --warning: #c47a2a;
-  --error: #d71921;
+  --success: #2e7d32;
+  --warning: #ed6c02;
+  --error: #c2185b;
 
-  --text-display: #1a1a1a;
+  --text-display: #0f0f0f;
   --text-primary: #1a1a1a;
   --text-secondary: #6b6b6b;
   --text-disabled: #a0a09c;
@@ -69,29 +72,29 @@
 .dark {
   --background: #0a0a0a;
   --foreground: #e8e8e8;
-  --card: #141414;
+  --card: #111111;
   --card-foreground: #e8e8e8;
-  --popover: #141414;
+  --popover: #111111;
   --popover-foreground: #e8e8e8;
   --primary: #e8e8e8;
   --primary-foreground: #0a0a0a;
   --secondary: #1a1a1a;
   --secondary-foreground: #e8e8e8;
   --muted: #1a1a1a;
-  --muted-foreground: #6b6b6b;
+  --muted-foreground: #7a7974;
   --accent: #1a1a1a;
   --accent-foreground: #e8e8e8;
-  --destructive: #d71921;
-  --border: #222222;
+  --destructive: #e91e63;
+  --border: #1f1f1f;
   --input: #222222;
   --ring: #e8e8e8;
-  --success: #34d399;
-  --warning: #fbbf24;
-  --error: #d71921;
+  --success: #4caf50;
+  --warning: #ff9800;
+  --error: #e91e63;
 
-  --text-display: #e8e8e8;
+  --text-display: #f0f0f0;
   --text-primary: #d4d4d4;
-  --text-secondary: #6b6b6b;
+  --text-secondary: #7a7974;
   --text-disabled: #3a3a3a;
 }
 
@@ -137,6 +140,11 @@
 
   html {
     @apply font-sans;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
   }
 }
 
@@ -261,19 +269,5 @@
 
   .status-error {
     color: var(--error);
-  }
-
-  @keyframes blink {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.3;
-    }
-  }
-
-  .loading-blink {
-    animation: blink 1s ease-in-out infinite;
   }
 }
