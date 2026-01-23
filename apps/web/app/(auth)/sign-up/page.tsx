@@ -26,7 +26,6 @@ import {
 export default function SignUpPage() {
   const router = useRouter();
   const [name, setName] = useState<string>("");
-  const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -37,11 +36,6 @@ export default function SignUpPage() {
 
     if (password.length < 8) {
       toast.error("Password must be at least 8 characters");
-      return;
-    }
-
-    if (username.length < 3) {
-      toast.error("Username must be at least 3 characters");
       return;
     }
 
@@ -56,7 +50,7 @@ export default function SignUpPage() {
         email,
         password,
         name,
-        username,
+        username: email.split("@")[0] || "coder",
       });
 
       if (error) {
@@ -93,20 +87,6 @@ export default function SignUpPage() {
                 onChange={(e) => setName(e.target.value)}
                 type="text"
                 placeholder="John Doe"
-                required
-                disabled={isLoading}
-                className="h-10 rounded-lg"
-              />
-            </Field>
-
-            <Field>
-              <FieldLabel htmlFor="username">Username</FieldLabel>
-              <Input
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                type="text"
-                placeholder="johndoe"
                 required
                 disabled={isLoading}
                 className="h-10 rounded-lg"
