@@ -1,4 +1,4 @@
-import type { DifficultyFilter } from "@/types";
+import type { DifficultyFilter } from "@/lib/types";
 
 export const DEFAULT_PAGE_SIZE = 15;
 

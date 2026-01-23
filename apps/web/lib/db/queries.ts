@@ -1,4 +1,4 @@
-import type { ProblemTotals, UpcomingContest } from "@/types";
+import type { ProblemTotals, UpcomingContest } from "@/lib/types";
 import { prisma, type Tag } from "@codearena/db";
 import { unstable_cache } from "next/cache";
 import { DEFAULT_PAGE_SIZE } from "../problems-keys";
@@ -14,9 +14,20 @@ export const problemSelect = {
 } as const;
 
 export const getCachedInitialProblemPage = unstable_cache(
-  () =>
+  (tags?: string[]) =>
     prisma.problem.findMany({
-      where: { isHidden: false },
+      where: {
+        isHidden: false,
+        ...(tags?.length && {
+          AND: tags.map((tag) => ({
+            tags: {
+              some: {
+                name: tag,
+              },
+            },
+          })),
+        }),
+      },
       orderBy: [{ title: "asc" }],
       take: DEFAULT_PAGE_SIZE,
       select: problemSelect,
@@ -120,6 +131,7 @@ export const getUpcomingContests = unstable_cache(
       take: 2,
       select: {
         id: true,
+        slug: true,
         title: true,
         startTime: true,
         _count: {
@@ -132,6 +144,7 @@ export const getUpcomingContests = unstable_cache(
 
     return contests.map((contest) => ({
       id: contest.id,
+      slug: contest.slug,
       title: contest.title,
       startTime: contest.startTime,
       problemCount: contest._count.problems,

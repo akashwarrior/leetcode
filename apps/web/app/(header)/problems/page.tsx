@@ -7,9 +7,9 @@ import { SWRConfig } from "swr";
 import { unstable_serialize } from "swr/infinite";
 import { getProblemsKey } from "@/lib/problems-keys";
 
-async function getProblems() {
+async function getProblems(tags?: string[]) {
   const [baseProblems, session] = await Promise.all([
-    getCachedInitialProblemPage(),
+    getCachedInitialProblemPage(tags),
     auth.api.getSession({ headers: await headers() }),
   ]);
 
@@ -38,11 +38,15 @@ async function getProblems() {
   ];
 }
 
-export default async function ProblemsPage() {
-  const problems = getProblems();
-
+export default async function ProblemsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tags?: string[] }>;
+}) {
+  let { tags } = await searchParams;
+  tags = tags ? (tags instanceof Array ? tags : [tags]) : undefined;
   const fallbackValue = {
-    [unstable_serialize(getProblemsKey())]: problems,
+    [unstable_serialize(getProblemsKey({ tags }))]: getProblems(tags),
   };
 
   return (
@@ -56,7 +60,7 @@ export default async function ProblemsPage() {
       </div>
 
       <SWRConfig value={{ fallback: fallbackValue }}>
-        <ProblemList />
+        <ProblemList initialTags={tags} />
       </SWRConfig>
     </div>
   );

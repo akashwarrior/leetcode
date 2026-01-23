@@ -8,7 +8,6 @@ type BaseProblem = Pick<
   | "slug"
   | "title"
   | "difficulty"
-  | "defaultCodeSnippet"
   | "totalSubmissions"
   | "totalAccepted"
 >;
@@ -27,6 +26,7 @@ export type ProblemTotals = {
 
 export type UpcomingContest = {
   id: string;
+  slug: string;
   title: string;
   startTime: Date;
   problemCount: number;

@@ -138,15 +138,13 @@ model Problem {
   id                 String     @id @default(uuid())
   slug               String     @unique
   title              String
-  description        String     @db.Text
   difficulty         Difficulty
   isHidden           Boolean    @default(false)
   timeLimitMs        Int
   memoryLimitKb      Int
   tags               Tag[]
-  defaultCodeSnippet String // s3 url
-  testCases          String // s3 url  (input, output, isHidden)
   hints              String[]
+  publicTestCases    Int[]
   totalSubmissions   Int        @default(0)
   totalAccepted      Int        @default(0)
 

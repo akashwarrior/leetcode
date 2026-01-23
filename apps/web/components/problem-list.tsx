@@ -1,7 +1,8 @@
 "use client";
 
-import type { DifficultyFilter } from "@/types";
+import type { DifficultyFilter } from "@/lib/types";
 import Link from "next/link";
+import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,11 +13,11 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import {
-  CheckCircle,
-  Circle,
-  Spinner,
-  MagnifyingGlass,
-  X,
+  CheckCircleIcon,
+  CircleIcon,
+  SpinnerIcon,
+  MagnifyingGlassIcon,
+  XIcon,
 } from "@phosphor-icons/react";
 
 const DIFFICULTY_OPTIONS: DifficultyFilter[] = [
@@ -29,16 +30,16 @@ const DIFFICULTY_OPTIONS: DifficultyFilter[] = [
 function StatusIcon({ status }: { status?: string }) {
   if (status === "SOLVED") {
     return (
-      <CheckCircle weight="regular" size={15} className="status-success" />
+      <CheckCircleIcon weight="regular" size={15} className="status-success" />
     );
   }
   if (status === "ATTEMPTED") {
-    return <Circle weight="regular" size={15} className="status-warning" />;
+    return <CircleIcon weight="regular" size={15} className="status-warning" />;
   }
-  return <Circle weight="regular" size={15} className="text-disabled/30" />;
+  return <CircleIcon weight="regular" size={15} className="text-disabled/30" />;
 }
 
-export function ProblemList() {
+export function ProblemList({ initialTags }: { initialTags?: string[] }) {
   const {
     difficulty,
     tags,
@@ -51,7 +52,7 @@ export function ProblemList() {
     mutate,
     loadMore,
     isLoading,
-  } = useProblems();
+  } = useProblems({ initialTags });
 
   return (
     <>
@@ -64,7 +65,7 @@ export function ProblemList() {
             {problems?.length}
           </span>
           {isLoading && (
-            <Spinner size={12} className="animate-spin text-secondary" />
+            <SpinnerIcon size={12} className="animate-spin text-secondary" />
           )}
           {tags.length
             ? tags.map((tag) => (
@@ -75,7 +76,7 @@ export function ProblemList() {
                   className="inline-flex items-center gap-1 rounded border border-border bg-background px-2 py-0.5 font-mono-label text-[10px] text-secondary transition-colors duration-150 ease-out hover:text-primary"
                 >
                   {tag.toUpperCase()}
-                  <X weight="regular" size={12} />
+                  <XIcon weight="regular" size={12} />
                 </button>
               ))
             : null}
@@ -92,7 +93,7 @@ export function ProblemList() {
                 className="text-sm h-8 placeholder:text-disabled"
               />
               <InputGroupAddon>
-                <MagnifyingGlass
+                <MagnifyingGlassIcon
                   weight="regular"
                   size={14}
                   className="text-secondary"
@@ -131,7 +132,7 @@ export function ProblemList() {
             onChange={(e) => setSearch(e.target.value)}
           />
           <InputGroupAddon>
-            <MagnifyingGlass
+            <MagnifyingGlassIcon
               weight="regular"
               size={14}
               className="text-secondary"
@@ -165,21 +166,33 @@ export function ProblemList() {
           </div>
 
           {problems.map((problem) => (
-            <Link
-              key={problem.id}
-              prefetch={false}
-              href={`/problems/${problem.slug}`}
-              className="group flex flex-wrap gap-2 items-center sm:grid sm:grid-cols-[50px_1fr_90px_200px_60px] sm:items-center sm:gap-0 px-4 py-2.5 border-b border-border last:border-0 transition-colors duration-150 ease-out hover:bg-muted/30"
-            >
-              <div className="flex items-center gap-3 sm:contents w-full">
-                <StatusIcon status={problem.status} />
-                <span className="text-[13px] font-medium text-primary truncate transition-colors duration-150 ease-out group-hover:text-display">
-                  {problem.title}
-                </span>
+            <div key={problem.id}>
+              <Link
+                prefetch={false}
+                href={`/problems/${problem.slug}`}
+                className="group flex flex-wrap gap-2 items-center sm:grid sm:grid-cols-[50px_1fr_90px_200px_60px] sm:items-center sm:gap-0 px-4 py-2.5 border-b border-border last:border-0 transition-colors duration-150 ease-out hover:bg-muted/30"
+              >
+                <div className="flex items-center gap-3 sm:contents w-full">
+                  <StatusIcon status={problem.status} />
+                  <span className="text-[13px] font-medium text-primary truncate transition-colors duration-150 ease-out group-hover:text-primary">
+                    {problem.title}
+                  </span>
+
+                  <span
+                    className={cn(
+                      "text-[11px] font-medium capitalize sm:hidden",
+                      problem.difficulty === "EASY" && "status-success",
+                      problem.difficulty === "MEDIUM" && "status-warning",
+                      problem.difficulty === "HARD" && "status-error",
+                    )}
+                  >
+                    {problem.difficulty?.toLowerCase()}
+                  </span>
+                </div>
 
                 <span
                   className={cn(
-                    "text-[11px] font-medium capitalize sm:hidden",
+                    "text-[11px] font-medium capitalize hidden sm:flex",
                     problem.difficulty === "EASY" && "status-success",
                     problem.difficulty === "MEDIUM" && "status-warning",
                     problem.difficulty === "HARD" && "status-error",
@@ -187,48 +200,56 @@ export function ProblemList() {
                 >
                   {problem.difficulty?.toLowerCase()}
                 </span>
-              </div>
 
-              <span
-                className={cn(
-                  "text-[11px] font-medium capitalize hidden sm:flex",
-                  problem.difficulty === "EASY" && "status-success",
-                  problem.difficulty === "MEDIUM" && "status-warning",
-                  problem.difficulty === "HARD" && "status-error",
-                )}
-              >
-                {problem.difficulty?.toLowerCase()}
-              </span>
+                <div className="flex items-center gap-1.5 overflow-x-auto ml-6 sm:ml-0 flex-1 [scrollbar-width:none]">
+                  {problem.tags?.map((tagItem) => (
+                    <Badge
+                      key={tagItem.id}
+                      variant="secondary"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setTags([
+                          ...tags.filter((t) => t !== tagItem.name),
+                          tagItem.name,
+                        ]);
+                      }}
+                      className="text-[10px]"
+                    >
+                      {tagItem.name}
+                    </Badge>
+                  ))}
+                </div>
 
-              <div className="flex items-center gap-1.5 overflow-x-auto ml-6 sm:ml-0 flex-1 [scrollbar-width:none]">
-                {problem.tags?.map((tagItem) => (
-                  <Badge
-                    key={tagItem.id}
-                    variant="secondary"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setTags([
-                        ...tags.filter((t) => t !== tagItem.name),
-                        tagItem.name,
-                      ]);
-                    }}
-                    className="text-[10px]"
-                  >
-                    {tagItem.name}
-                  </Badge>
-                ))}
-              </div>
-
-              <span className="ml-4 sm:ml-auto text-[11px] text-secondary font-mono text-right tabular-nums">
-                {problem.totalSubmissions > 0
-                  ? Math.round(
-                      (problem.totalAccepted / problem.totalSubmissions) * 100,
-                    )
-                  : 0}
-                %
-              </span>
-            </Link>
+                <span className="ml-4 sm:ml-auto text-[11px] text-secondary font-mono text-right tabular-nums">
+                  {problem.totalSubmissions > 0
+                    ? Math.round(
+                        (problem.totalAccepted / problem.totalSubmissions) *
+                          100,
+                      )
+                    : 0}
+                  %
+                </span>
+              </Link>
+            </div>
           ))}
+
+          <motion.div onViewportEnter={loadMore} />
+
+          {isLoading &&
+            Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="min-h-10">
+                <div className="sm:grid flex gap-3 sm:gap-0 flex-wrap sm:grid-cols-[50px_1fr_90px_200px_60px] items-center px-4 py-2">
+                  <div className="bg-muted rounded-full size-4 animate-pulse" />
+                  <div className="h-4 bg-muted rounded w-3/4 animate-pulse" />
+                  <div className="h-4 bg-muted rounded w-12 animate-pulse" />
+                  <div className="flex gap-1.5">
+                    <div className="h-4 bg-muted rounded w-12 animate-pulse" />
+                    <div className="h-4 bg-muted rounded w-16 animate-pulse" />
+                  </div>
+                  <div className="h-4 bg-muted rounded w-8 ml-auto animate-pulse" />
+                </div>
+              </div>
+            ))}
         </div>
       )}
 
@@ -246,20 +267,6 @@ export function ProblemList() {
           </Button>
         </div>
       )}
-
-      <div
-        ref={(el) => {
-          if (!el) return;
-          const observer = new IntersectionObserver(
-            ([entry]) => {
-              if (entry.isIntersecting) loadMore();
-            },
-            { rootMargin: "200px" },
-          );
-          observer.observe(el);
-          return () => observer.disconnect();
-        }}
-      />
     </>
   );
 }
