@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { mutate } from "swr";
 import { useRouter } from "next/navigation";
@@ -42,7 +43,12 @@ export function ProfileDropdown() {
           <Button
             size="icon-sm"
             variant="ghost"
-            className="items-center justify-center bg-muted text-[10px] font-medium text-primary overflow-hidden rounded-lg"
+            className={cn(
+              "items-center justify-center overflow-hidden rounded",
+              user.image
+                ? "bg-transparent"
+                : "bg-muted text-[10px] font-medium text-primary ",
+            )}
           >
             {user.image ? (
               <Image src={user.image} alt="Avatar" width={72} height={72} />

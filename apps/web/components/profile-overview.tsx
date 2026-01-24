@@ -112,13 +112,11 @@ function DonutChart({
 export async function ProfileOverview({ user }: { user: ProfileUser }) {
   const totalSolved = user.solvedEasy + user.solvedMedium + user.solvedHard;
 
-  const [problemTotals, session, activity] = await Promise.all([
+  const [{ easy, hard, medium }, session, activity] = await Promise.all([
     getProblemTotals(),
     auth.api.getSession({ headers: await headers() }),
     getUserActivityHeatmap(user.id),
   ]);
-
-  const { easy, hard, medium, total: totalProblems } = problemTotals;
 
   const achievements = [
     {
@@ -148,7 +146,7 @@ export async function ProfileOverview({ user }: { user: ProfileUser }) {
     <div className="grid gap-5 lg:grid-cols-[240px_1fr]">
       <div className="space-y-4">
         <div className="nothing-card p-5 text-center">
-          <div className="mx-auto flex size-16 items-center justify-center relative overflow-hidden">
+          <div className="mx-auto flex size-16 items-center justify-center relative rounded overflow-hidden">
             {user.image ? (
               <Image
                 width={80}
@@ -156,10 +154,9 @@ export async function ProfileOverview({ user }: { user: ProfileUser }) {
                 alt="profile"
                 loading="eager"
                 src={user.image}
-                className="rounded"
               />
             ) : (
-              <span className="text-xl font-medium text-primary">
+              <span className="text-xl font-medium text-primary bg-linear-to-br from-muted via-muted-foreground/30 border to-background size-full flex items-center justify-center">
                 {user.name.charAt(0)}
               </span>
             )}
