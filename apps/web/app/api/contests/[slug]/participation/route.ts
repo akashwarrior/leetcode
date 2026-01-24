@@ -1,19 +1,17 @@
+import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 import { prisma } from "@codearena/db";
 import { revalidateTag } from "next/cache";
-import { NextResponse } from "next/server";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
 
-async function getContestByParam(contestId: string) {
+async function getContestByParam(slug: string) {
   return prisma.contest.findFirst({
     where: {
       isHidden: false,
-      OR: [{ id: contestId }, { slug: contestId }],
+      slug,
     },
     select: {
       id: true,
       slug: true,
-      title: true,
       startTime: true,
       endTime: true,
     },
@@ -21,25 +19,29 @@ async function getContestByParam(contestId: string) {
 }
 
 export async function POST(
-  _request: Request,
-  { params }: { params: Promise<{ contestId: string }> },
+  req: Request,
+  { params }: { params: Promise<{ slug: string }> },
 ) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await auth.api.getSession({ headers: req.headers });
 
-  if (!session?.user?.id) {
+  if (!session?.user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  const { contestId } = await params;
-  const contest = await getContestByParam(contestId);
+  const { slug } = await params;
+  const contest = await getContestByParam(slug);
 
   if (!contest) {
     return NextResponse.json({ message: "Contest not found" }, { status: 404 });
   }
 
-  if (contest.endTime <= new Date()) {
+  const now = new Date();
+
+  if (contest.startTime <= now || contest.endTime <= now) {
     return NextResponse.json(
-      { message: "This contest has already ended" },
+      {
+        message: `This contest has already ${contest.endTime <= now ? "ended" : "started"}`,
+      },
       { status: 400 },
     );
   }
@@ -58,25 +60,23 @@ export async function POST(
     },
   });
 
-  revalidateTag("contests",{
-    expire: undefined,
-  });
+  revalidateTag("contests", { expire: undefined });
 
   return NextResponse.json({ registered: true });
 }
 
 export async function DELETE(
-  _request: Request,
-  { params }: { params: Promise<{ contestId: string }> },
+  req: Request,
+  { params }: { params: Promise<{ slug: string }> },
 ) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await auth.api.getSession({ headers: req.headers });
 
-  if (!session?.user?.id) {
+  if (!session?.user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  const { contestId } = await params;
-  const contest = await getContestByParam(contestId);
+  const { slug } = await params;
+  const contest = await getContestByParam(slug);
 
   if (!contest) {
     return NextResponse.json({ message: "Contest not found" }, { status: 404 });
@@ -98,9 +98,7 @@ export async function DELETE(
     },
   });
 
-  revalidateTag("contests", {
-    expire: undefined,
-  });
+  revalidateTag("contests", { expire: undefined });
 
   return NextResponse.json({ registered: false });
 }

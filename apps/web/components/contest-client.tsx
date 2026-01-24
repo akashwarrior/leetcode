@@ -12,14 +12,14 @@ import {
   type ContestStatus,
 } from "@/lib/contest";
 import {
-  Crown,
-  Medal,
-  ArrowRight,
-  Calendar,
-  Clock,
-  Trophy,
-  Users,
-  FileText,
+  CrownIcon,
+  MedalIcon,
+  ArrowRightIcon,
+  CalendarIcon,
+  ClockIcon,
+  TrophyIcon,
+  UsersIcon,
+  FileTextIcon,
 } from "@phosphor-icons/react";
 
 type ContestListItem = {
@@ -66,12 +66,12 @@ const FILTERS: { id: FilterValue; label: string }[] = [
 
 function RankBadge({ rank }: { rank: number }) {
   if (rank === 1)
-    return <Crown size={14} weight="regular" className="status-warning" />;
+    return <CrownIcon size={14} weight="regular" className="status-warning" />;
   if (rank === 2)
-    return <Medal size={14} weight="regular" className="text-secondary" />;
+    return <MedalIcon size={14} weight="regular" className="text-secondary" />;
   if (rank === 3)
     return (
-      <Medal
+      <MedalIcon
         size={14}
         weight="regular"
         className="status-warning"
@@ -126,7 +126,7 @@ function ContestCard({
     contest.startTime,
     contest.endTime,
   );
-  const href = `/contest/${contest.slug}`;
+  const href = `/contests/${contest.slug}`;
 
   return (
     <article className="nothing-card nothing-card-hover p-4">
@@ -147,7 +147,7 @@ function ContestCard({
             className="group inline-flex items-center gap-1.5 text-base font-medium tracking-tight hover:text-primary transition-colors duration-200 ease-out"
           >
             <span className="truncate">{contest.title}</span>
-            <ArrowRight
+            <ArrowRightIcon
               size={14}
               weight="regular"
               className="text-disabled transition-all duration-200 ease-out group-hover:translate-x-0.5 group-hover:text-primary"
@@ -156,19 +156,19 @@ function ContestCard({
 
           <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-secondary">
             <span className="flex items-center gap-1.5">
-              <Calendar size={12} weight="regular" className="text-disabled" />
+              <CalendarIcon size={12} weight="regular" className="text-disabled" />
               {contest.startLabel}
             </span>
             <span className="flex items-center gap-1.5">
-              <Clock size={12} weight="regular" className="text-disabled" />
+              <ClockIcon size={12} weight="regular" className="text-disabled" />
               {duration}m
             </span>
             <span className="flex items-center gap-1.5">
-              <FileText size={12} weight="regular" className="text-disabled" />
+              <FileTextIcon size={12} weight="regular" className="text-disabled" />
               {contest.problemCount}
             </span>
             <span className="flex items-center gap-1.5">
-              <Users size={12} weight="regular" className="text-disabled" />
+              <UsersIcon size={12} weight="regular" className="text-disabled" />
               {contest.participantCount.toLocaleString()}
             </span>
           </div>
@@ -204,7 +204,7 @@ function ContestCard({
         <div className="flex shrink-0 flex-col items-end gap-2">
           {status === "UPCOMING" && (
             <ContestRegistrationButton
-              contestId={contest.id}
+              contestSlug={contest.slug}
               contestTitle={contest.title}
               initialRegistered={isRegistered}
               size="sm"
@@ -217,9 +217,9 @@ function ContestCard({
               buttonVariants({
                 variant: status === "LIVE" ? "default" : "outline",
               }),
-              "w-25",
+              "w-24",
               status === "LIVE" &&
-                "bg-primary text-primary-foreground hover:bg-primary/90",
+              "bg-primary text-primary-foreground hover:bg-primary/90",
             )}
           >
             {status === "LIVE"
@@ -296,7 +296,7 @@ export function ContestClient({
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <h2 className="text-sm font-medium text-primary">Schedule</h2>
@@ -324,7 +324,7 @@ export function ContestClient({
           </div>
 
           {filteredContests.length > 0 ? (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               {filteredContests.map((contest) => (
                 <ContestCard
                   key={contest.id}
@@ -343,14 +343,14 @@ export function ContestClient({
           )}
         </div>
 
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           <div className="nothing-card p-4">
             <div className="mb-3 flex items-center gap-2">
-              <Trophy size={14} weight="regular" className="status-warning" />
+              <TrophyIcon size={14} weight="regular" className="status-warning" />
               <h2 className="text-sm font-medium text-primary">Top Rated</h2>
             </div>
 
-            <div className="space-y-0.5">
+            <div className="flex flex-col gap-0.5">
               {topUsers.map((user, index) => (
                 <Link
                   key={user.username}
@@ -383,7 +383,7 @@ export function ContestClient({
             </h2>
 
             {myStats ? (
-              <div className="space-y-3">
+              <div className="flex flex-col gap-3">
                 <div>
                   <p className="text-sm font-medium text-primary">
                     {myStats.username}
@@ -423,7 +423,7 @@ export function ContestClient({
                 </Link>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="flex flex-col gap-3">
                 <p className="text-sm text-secondary">
                   Sign in to register for contests and track your participation.
                 </p>

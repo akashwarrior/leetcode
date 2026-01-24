@@ -11,13 +11,13 @@ import { ContestDetailClient } from "@/components/contest-detail-client";
 export default async function ContestDetailPage({
   params,
 }: {
-  params: Promise<{ contestId: string }>;
+  params: Promise<{ slug: string }>;
 }) {
   const now = new Date();
-  const { contestId } = await params;
+  const { slug } = await params;
   const session = await auth.api.getSession({ headers: await headers() });
 
-  const contest = await getCachedContestDetail(contestId);
+  const contest = await getCachedContestDetail(slug);
 
   if (!contest) {
     notFound();

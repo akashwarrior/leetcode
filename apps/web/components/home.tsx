@@ -236,7 +236,7 @@ export default async function Home({ user }: { user: Session["user"] }) {
             <h3 className="text-sm font-medium text-primary mb-4">
               Solve Progress
             </h3>
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
               {(
                 [
                   {
@@ -301,19 +301,19 @@ export default async function Home({ user }: { user: Session["user"] }) {
               </h3>
               <Link
                 prefetch={false}
-                href="/contest"
+                href="/contests"
                 className="text-xs text-secondary hover:text-primary transition-colors"
               >
                 ALL
               </Link>
             </div>
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1">
               {upcomingContests.length > 0 ? (
                 upcomingContests.map((contest) => (
                   <Link
                     key={contest.id}
                     prefetch={false}
-                    href={`/contest/${contest.id}`}
+                    href={`/contests/${contest.slug}`}
                     className="flex items-center gap-3 rounded-lg p-2 hover:bg-muted transition-colors group"
                   >
                     <div className="flex size-8 items-center justify-center rounded bg-muted shrink-0">
@@ -352,7 +352,7 @@ export default async function Home({ user }: { user: Session["user"] }) {
               {tags.map((tag) => (
                 <Link
                   key={tag.id}
-                  href={`/problems?tag=${tag.id}`}
+                  href={`/problems?tags=${encodeURIComponent(tag.name)}`}
                   className="text-[0.6875rem] text-secondary bg-muted px-2 py-1 rounded hover:text-primary hover:bg-muted/80 transition-colors"
                 >
                   {tag.name}

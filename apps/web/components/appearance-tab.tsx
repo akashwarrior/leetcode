@@ -2,9 +2,9 @@
 
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
-import { Moon, Sun, Desktop } from "@phosphor-icons/react";
 import { useAtom } from "jotai";
 import { editorThemeAtom, fontSizeAtom } from "@/lib/store";
+import { MoonIcon, SunIcon, DesktopIcon } from "@phosphor-icons/react";
 
 export function AppearanceTab() {
   const { theme, setTheme } = useTheme();
@@ -12,9 +12,9 @@ export function AppearanceTab() {
   const [fontSize, setFontSize] = useAtom(fontSizeAtom);
 
   const themes = [
-    { id: "light", label: "Light", icon: Sun },
-    { id: "dark", label: "Dark", icon: Moon },
-    { id: "system", label: "System", icon: Desktop },
+    { id: "light", label: "Light", icon: SunIcon },
+    { id: "dark", label: "Dark", icon: MoonIcon },
+    { id: "system", label: "System", icon: DesktopIcon },
   ];
 
   return (
@@ -54,7 +54,7 @@ export function AppearanceTab() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => {
-                  setFontSize((s) => String(Math.max(10, Number(s) - 1)));
+                  setFontSize((s) => Math.max(10, Number(s) - 1));
                 }}
                 className="flex size-8 items-center justify-center rounded-lg border border-border hover:bg-muted text-sm transition-colors text-primary"
                 title="Decrease font size"
@@ -66,7 +66,7 @@ export function AppearanceTab() {
               </span>
               <button
                 onClick={() => {
-                  setFontSize((s) => String(Math.min(24, Number(s) + 1)));
+                  setFontSize((s) => Math.min(24, Number(s) + 1));
                 }}
                 className="flex size-8 items-center justify-center rounded-lg border border-border hover:bg-muted text-sm transition-colors text-primary"
                 title="Increase font size"
@@ -86,14 +86,13 @@ export function AppearanceTab() {
             <select
               value={editorTheme}
               onChange={(e) => {
-                setEditorTheme(e.target.value);
+                setEditorTheme(e.target.value as typeof editorTheme);
               }}
               className="h-8 rounded-lg border border-border bg-card px-2.5 text-xs font-medium outline-none cursor-pointer text-primary"
             >
-              <option value="dark">Dark (Default)</option>
-              <option value="monokai">Monokai</option>
-              <option value="solarized">Solarized</option>
-              <option value="github">GitHub</option>
+              <option value="system">System (Default)</option>
+              <option value="dark">Dark </option>
+              <option value="light">Light (Beta)</option>
             </select>
           </div>
         </div>

@@ -2,13 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle, Spinner, Trophy } from "@phosphor-icons/react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/auth/client";
+import {
+  CheckCircleIcon,
+  SpinnerIcon,
+  TrophyIcon,
+} from "@phosphor-icons/react";
 
 type ContestRegistrationButtonProps = {
-  contestId: string;
+  contestSlug: string;
   contestTitle: string;
   initialRegistered: boolean;
   size?: "default" | "sm" | "lg";
@@ -16,7 +20,7 @@ type ContestRegistrationButtonProps = {
 };
 
 export function ContestRegistrationButton({
-  contestId,
+  contestSlug,
   contestTitle,
   initialRegistered,
   size = "default",
@@ -45,9 +49,12 @@ export function ContestRegistrationButton({
     setPending(true);
 
     try {
-      const response = await fetch(`/api/contests/${contestId}/participation`, {
-        method: registered ? "DELETE" : "POST",
-      });
+      const response = await fetch(
+        `/api/contests/${contestSlug}/participation`,
+        {
+          method: registered ? "DELETE" : "POST",
+        },
+      );
 
       const payload = (await response.json().catch(() => null)) as {
         message?: string;
@@ -87,15 +94,15 @@ export function ContestRegistrationButton({
       className={className}
     >
       {pending ? (
-        <Spinner size={14} className="animate-spin" />
+        <SpinnerIcon size={14} className="animate-spin" />
       ) : registered ? (
         <>
-          <CheckCircle size={14} />
+          <CheckCircleIcon size={14} />
           Registered
         </>
       ) : (
         <>
-          <Trophy size={14} />
+          <TrophyIcon size={14} />
           Register
         </>
       )}

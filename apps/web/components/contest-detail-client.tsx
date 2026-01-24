@@ -1,30 +1,30 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { buttonVariants } from "@/components/ui/button";
 import { ContestCountdown } from "@/components/contest-countdown";
 import { ContestRegistrationButton } from "@/components/contest-registration-button";
-import { buttonVariants } from "@/components/ui/button";
 import {
   getContestDurationMinutes,
   getContestStatus,
   type ContestStatus,
 } from "@/lib/contest";
 import {
-  ArrowLeft,
-  Calendar,
-  CheckCircle,
-  Clock,
-  Crown,
-  FileText,
-  Lock,
-  Medal,
-  Target,
-  Trophy,
-  Users,
+  ArrowLeftIcon,
+  CalendarIcon,
+  CheckCircleIcon,
+  ClockIcon,
+  CrownIcon,
+  FileTextIcon,
+  LockIcon,
+  MedalIcon,
+  TargetIcon,
+  TrophyIcon,
+  UsersIcon,
 } from "@phosphor-icons/react";
-import { useRouter } from "next/navigation";
 
 type LeaderboardEntry = {
   rank: number;
@@ -61,9 +61,9 @@ type ContestDetailClientProps = {
 };
 
 function RankBadge({ rank }: { rank: number }) {
-  if (rank === 1) return <Crown size={14} className="status-warning" />;
-  if (rank === 2) return <Medal size={14} className="text-secondary" />;
-  if (rank === 3) return <Medal size={14} className="text-secondary" />;
+  if (rank === 1) return <CrownIcon size={14} className="status-warning" />;
+  if (rank === 2) return <MedalIcon size={14} className="text-secondary" />;
+  if (rank === 3) return <MedalIcon size={14} className="text-secondary" />;
   return (
     <span className="w-4 text-center font-mono text-xs text-disabled">
       {rank}
@@ -92,8 +92,8 @@ export function ContestDetailClient({
   const [now, setNow] = useState(() => new Date(initialNow));
 
   useEffect(() => {
-    const interval = window.setInterval(() => setNow(new Date()), 1000);
-    return () => window.clearInterval(interval);
+    const interval = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(interval);
   }, []);
 
   const status = getContestStatus(contest.startTime, contest.endTime, now);
@@ -120,18 +120,18 @@ export function ContestDetailClient({
   const primaryProblem = contest.problems[0];
 
   return (
-    <div className="space-y-6 pb-10">
+    <div className="flex flex-col gap-6 pb-10">
       <button
         onClick={router.back}
         className="flex items-center gap-1.5 text-sm text-secondary transition-colors duration-200 ease-out hover:text-primary cursor-pointer"
       >
-        <ArrowLeft size={14} />
+        <ArrowLeftIcon size={14} />
         All Contests
       </button>
 
       <section className="nothing-card p-5 sm:p-6">
         <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center gap-2">
               <span
                 className={cn(
@@ -151,7 +151,7 @@ export function ContestDetailClient({
               )}
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <p className="font-mono-label">Contest Detail</p>
               <h1 className="text-display text-2xl sm:text-3xl">
                 {contest.title}
@@ -164,21 +164,26 @@ export function ContestDetailClient({
 
             <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-secondary">
               <span className="flex items-center gap-1.5">
-                <Calendar size={14} className="text-disabled" />
+                <CalendarIcon size={14} className="text-disabled" />
                 {contest.startLabel}
               </span>
               <span className="flex items-center gap-1.5">
-                <Clock size={14} className="text-disabled" />
+                <ClockIcon size={14} className="text-disabled" />
                 {duration}m
               </span>
               <span className="flex items-center gap-1.5">
-                <Users size={14} className="text-disabled" />
+                <UsersIcon size={14} className="text-disabled" />
                 {contest.participantCount.toLocaleString()} participants
               </span>
             </div>
           </div>
 
-          <div className="flex flex-col gap-4 rounded border border-border p-4">
+          <div
+            className={cn(
+              "flex flex-col gap-4 rounded border border-border p-4",
+              isPast && "border-none",
+            )}
+          >
             {isUpcoming && (
               <div>
                 <p className="text-xs text-secondary">Starts in</p>
@@ -205,7 +210,7 @@ export function ContestDetailClient({
             <div className="flex flex-wrap gap-2">
               {isUpcoming && (
                 <ContestRegistrationButton
-                  contestId={contest.id}
+                  contestSlug={contest.slug}
                   contestTitle={contest.title}
                   initialRegistered={isRegistered}
                   className="flex-1"
@@ -230,34 +235,24 @@ export function ContestDetailClient({
               )}
 
               {isPast && (
-                <>
-                  <Link
-                    prefetch={false}
-                    href="#problem-set"
-                    className={cn(
-                      buttonVariants({ variant: "outline" }),
-                      "flex-1",
-                    )}
-                  >
-                    Problems
-                  </Link>
-                  <Link
-                    prefetch={false}
-                    href="#leaderboard"
-                    className={cn(
-                      buttonVariants({ variant: "outline" }),
-                      "flex-1",
-                    )}
-                  >
-                    Rankings
-                  </Link>
-                </>
+                <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg border border-border bg-muted/20 w-full">
+                  <CheckCircleIcon
+                    size={14}
+                    className="status-success shrink-0"
+                  />
+                  <span className="text-sm font-medium text-primary">
+                    Contest ended
+                  </span>
+                  <span className="text-xs text-secondary ml-auto">
+                    Upsolve available
+                  </span>
+                </div>
               )}
             </div>
 
             {isRegistered && isUpcoming && (
               <div className="flex items-center gap-1.5 text-xs status-success">
-                <CheckCircle size={14} />
+                <CheckCircleIcon size={14} />
                 <span>Registered</span>
               </div>
             )}
@@ -266,8 +261,8 @@ export function ContestDetailClient({
       </section>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
-        <div className="space-y-6">
-          <section id="problem-set" className="space-y-3">
+        <div className="flex flex-col gap-6">
+          <section id="problem-set" className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-mono-label">Workspace</p>
@@ -284,7 +279,7 @@ export function ContestDetailClient({
               <div className="nothing-card">
                 <div className="border-b border-border px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <Lock size={14} className="text-secondary" />
+                    <LockIcon size={14} className="text-secondary" />
                     <span className="text-sm font-medium">
                       Locked Until Start
                     </span>
@@ -294,7 +289,7 @@ export function ContestDetailClient({
                   <p className="font-mono-label text-xs text-disabled">
                     [LOADING...]
                   </p>
-                  <div className="mt-2 space-y-2">
+                  <div className="flex flex-col gap-2">
                     {Array.from(
                       { length: contest.problemCount || 4 },
                       (_, index) => (
@@ -310,7 +305,10 @@ export function ContestDetailClient({
                               Problem title
                             </p>
                           </div>
-                          <Lock size={12} className="shrink-0 text-disabled" />
+                          <LockIcon
+                            size={12}
+                            className="shrink-0 text-disabled"
+                          />
                         </div>
                       ),
                     )}
@@ -325,7 +323,7 @@ export function ContestDetailClient({
                     prefetch={false}
                     href={`/problems/${problem.slug}`}
                     className={cn(
-                      "group grid items-center gap-3 px-4 py-3 transition-colors duration-200 ease-out hover:bg-muted/50 sm:grid-cols-[2.5rem_minmax(0,1fr)_80px_70px]",
+                      "group grid items-center gap-3 px-4 py-3 transition-colors duration-200 ease-out hover:bg-muted/50 grid-cols-[2.5rem_minmax(0,1fr)_70px] sm:grid-cols-[2.5rem_minmax(0,1fr)_80px_70px]",
                       index !== contest.problems.length - 1 &&
                         "border-b border-border",
                     )}
@@ -341,7 +339,7 @@ export function ContestDetailClient({
                         {problem.points} points
                       </p>
                     </div>
-                    <div className="text-xs font-medium tabular-nums text-secondary sm:text-right">
+                    <div className="text-xs font-medium tabular-nums text-secondary hidden sm:flex sm:text-right">
                       {problem.points} pts
                     </div>
                     <div
@@ -362,7 +360,7 @@ export function ContestDetailClient({
             )}
           </section>
 
-          <section id="leaderboard" className="space-y-3">
+          <section id="leaderboard" className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-mono-label">Standings</p>
@@ -384,7 +382,7 @@ export function ContestDetailClient({
             {isUpcoming ? (
               <div className="nothing-card p-8 text-center">
                 <div className="mx-auto flex size-10 items-center justify-center">
-                  <Lock size={18} className="text-secondary" />
+                  <LockIcon size={18} className="text-secondary" />
                 </div>
                 <p className="mt-3 text-sm font-medium">Leaderboard Hidden</p>
                 <p className="mt-1 text-xs text-secondary">
@@ -432,7 +430,7 @@ export function ContestDetailClient({
             )}
           </section>
 
-          <section className="space-y-3">
+          <section className="flex flex-col gap-3">
             <div>
               <p className="font-mono-label">Format</p>
               <h2 className="text-base font-medium">Rules</h2>
@@ -459,23 +457,23 @@ export function ContestDetailClient({
           </section>
         </div>
 
-        <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
+        <aside className="flex flex-col gap-4 lg:sticky lg:top-20 lg:self-start">
           <div className="nothing-card">
             <div className="border-b border-border px-4 py-3">
               <h3 className="text-sm font-medium">Contest Snapshot</h3>
             </div>
-            <div className="space-y-0.5 p-3">
+            <div className="flex flex-col gap-0.5 p-3">
               {[
                 {
                   label: "Problems",
                   value: `${contest.problemCount} linked`,
-                  icon: FileText,
+                  icon: FileTextIcon,
                   color: "text-primary",
                 },
                 {
                   label: "Scoring",
                   value: "Score, then penalty",
-                  icon: Target,
+                  icon: TargetIcon,
                   color: "status-success",
                 },
                 {
@@ -485,7 +483,7 @@ export function ContestDetailClient({
                     : isUpcoming
                       ? "Registration open"
                       : "Contest closed",
-                  icon: Trophy,
+                  icon: TrophyIcon,
                   color: "status-warning",
                 },
               ].map((item) => (
@@ -529,16 +527,6 @@ export function ContestDetailClient({
                   )}
                 >
                   {primaryProblem ? "Open first problem" : "Open contest"}
-                </Link>
-              )}
-
-              {isPast && (
-                <Link
-                  prefetch={false}
-                  href="#problem-set"
-                  className={buttonVariants({ variant: "outline" })}
-                >
-                  Browse problem set
                 </Link>
               )}
             </div>

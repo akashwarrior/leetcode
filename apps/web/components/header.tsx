@@ -21,7 +21,7 @@ import { AnimatePresence, motion } from "motion/react";
 const NAV_ITEMS = [
   { label: "Home", href: "/", icon: House },
   { label: "Problems", href: "/problems", icon: SquaresFour },
-  { label: "Contest", href: "/contest", icon: Trophy },
+  { label: "Contests", href: "/contests", icon: Trophy },
 ];
 
 export function Header() {
