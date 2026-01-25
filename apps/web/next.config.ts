@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   experimental: {
-    optimizePackageImports: ["@phosphor-icons"],
+    optimizePackageImports: ["@phosphor-icons/react"],
   },
   images: {
     remotePatterns: [

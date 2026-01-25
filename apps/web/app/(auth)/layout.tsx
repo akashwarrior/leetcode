@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CodeBlock } from "@phosphor-icons/react/dist/ssr";
+import { CodeBlockIcon } from "@phosphor-icons/react/dist/ssr/CodeBlock";
 
 export default function AuthLayout({
   children,
@@ -14,7 +14,7 @@ export default function AuthLayout({
         className="z-20 flex lg:absolute top-6 left-6 items-center gap-2 w-fit cursor-pointer p-6 lg:p-0"
       >
         <div className="flex size-5 items-center justify-center rounded bg-primary">
-          <CodeBlock
+          <CodeBlockIcon
             size={10}
             className="text-primary-foreground"
             weight="bold"

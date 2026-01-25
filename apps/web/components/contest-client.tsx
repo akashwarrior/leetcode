@@ -156,7 +156,11 @@ function ContestCard({
 
           <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-secondary">
             <span className="flex items-center gap-1.5">
-              <CalendarIcon size={12} weight="regular" className="text-disabled" />
+              <CalendarIcon
+                size={12}
+                weight="regular"
+                className="text-disabled"
+              />
               {contest.startLabel}
             </span>
             <span className="flex items-center gap-1.5">
@@ -164,7 +168,11 @@ function ContestCard({
               {duration}m
             </span>
             <span className="flex items-center gap-1.5">
-              <FileTextIcon size={12} weight="regular" className="text-disabled" />
+              <FileTextIcon
+                size={12}
+                weight="regular"
+                className="text-disabled"
+              />
               {contest.problemCount}
             </span>
             <span className="flex items-center gap-1.5">
@@ -219,7 +227,7 @@ function ContestCard({
               }),
               "w-24",
               status === "LIVE" &&
-              "bg-primary text-primary-foreground hover:bg-primary/90",
+                "bg-primary text-primary-foreground hover:bg-primary/90",
             )}
           >
             {status === "LIVE"
@@ -346,7 +354,11 @@ export function ContestClient({
         <div className="flex flex-col gap-4">
           <div className="nothing-card p-4">
             <div className="mb-3 flex items-center gap-2">
-              <TrophyIcon size={14} weight="regular" className="status-warning" />
+              <TrophyIcon
+                size={14}
+                weight="regular"
+                className="status-warning"
+              />
               <h2 className="text-sm font-medium text-primary">Top Rated</h2>
             </div>
 
