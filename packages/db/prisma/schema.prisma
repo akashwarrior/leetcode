@@ -62,7 +62,7 @@ model ContestParticipation {
 }
 
 enum SubmissionStatus {
-  PENDING
+  QUEUED
   RUNNING
   ACCEPTED
   WRONG_ANSWER
@@ -81,7 +81,7 @@ model Submission {
   id              String           @id @default(cuid())
   language        Language
   code            String           @db.Text
-  status          SubmissionStatus @default(PENDING)
+  status          SubmissionStatus @default(QUEUED)
   timeInMs        Int?
   memoryInKb      Int?
   lastTestCaseId  String?
