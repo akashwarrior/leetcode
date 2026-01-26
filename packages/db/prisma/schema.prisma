@@ -78,13 +78,17 @@ enum Language {
 }
 
 model Submission {
-  id           String           @id @default(cuid())
-  language     Language
-  codeSnippet  String // s3 url 
-  status       SubmissionStatus @default(PENDING)
-  timeInMs     Int?
-  memoryInKb   Int?
-  errorMessage String?          @db.Text
+  id              String           @id @default(cuid())
+  language        Language
+  code            String           @db.Text
+  status          SubmissionStatus @default(PENDING)
+  timeInMs        Int?
+  memoryInKb      Int?
+  lastTestCaseId  String?
+  codeAnswer      String?
+  codeOutput      String?          @db.Text
+  errorMessage    String?          @db.Text
+  passedTestCases Int              @default(0)
 
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -135,18 +139,18 @@ enum Difficulty {
 }
 
 model Problem {
-  id                 String     @id @default(uuid())
-  slug               String     @unique
-  title              String
-  difficulty         Difficulty
-  isHidden           Boolean    @default(false)
-  timeLimitMs        Int
-  memoryLimitKb      Int
-  tags               Tag[]
-  hints              String[]
-  publicTestCases    Int[]
-  totalSubmissions   Int        @default(0)
-  totalAccepted      Int        @default(0)
+  id               String     @id @default(uuid())
+  slug             String     @unique
+  title            String
+  difficulty       Difficulty
+  isHidden         Boolean    @default(false)
+  timeLimitMs      Int
+  memoryLimitKb    Int
+  tags             Tag[]
+  hints            String[]
+  publicTestCases  Int[]
+  totalSubmissions Int        @default(0)
+  totalAccepted    Int        @default(0)
 
   submissions      Submission[]
   contests         ContestProblem[]
