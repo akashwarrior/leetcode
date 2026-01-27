@@ -159,12 +159,7 @@ export function Header() {
                               : "text-secondary hover:text-primary hover:bg-muted/50",
                           )}
                         >
-                          <Icon
-                            size={14}
-                            className={
-                              isActive ? "text-primary" : "text-secondary/50"
-                            }
-                          />
+                          <Icon size={14} />
                           {label}
                           {isActive && (
                             <span className="ml-auto size-1.5 rounded-full bg-primary" />

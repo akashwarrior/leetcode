@@ -6,7 +6,7 @@ type Message = {
   id: string;
   message: {
     submissionId: string | null;
-    executionId: string;
+    id: string;
     problemId: string;
     language: Language;
     code: string;
@@ -48,7 +48,7 @@ const main = async () => {
     // -- execute code here --
 
     const payload: Execution = {
-      id: message.message.executionId,
+      id: message.message.id,
       status: "ACCEPTED",
       attemptCount: 1,
       passedTestCases: 5,
@@ -62,13 +62,15 @@ const main = async () => {
     // TODO: handle race update failures
 
     await redisService.set(
-      `executions:${message.message.executionId}`,
+      `executions:${message.message.id}`,
       JSON.stringify(payload),
     );
 
     // if submissionId then update the submission in db
 
     if (message.message.submissionId) {
+      // simulating delay because of db lock time collision
+      await new Promise((resolve) => setTimeout(resolve, 5));
       await prisma.submission.update({
         where: {
           id: message.message.submissionId,

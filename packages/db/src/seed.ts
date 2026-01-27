@@ -66,24 +66,11 @@ async function seedProblems(
       data: {
         slug: `${SLUGS[i % SLUGS.length]!}-${index}`,
         title: `Problem title ${index}`,
-        description: `Description for problem ${index}`,
         difficulty: pickRandom(DIFFICULTIES),
         isHidden: false,
         timeLimitMs: 2000,
         memoryLimitKb: 262_144,
-        defaultCodeSnippet: "https://google.com",
-        testCases: JSON.stringify([
-          {
-            input: "sample input 1",
-            output: "sample output 1",
-            isHidden: false,
-          },
-          {
-            input: "sample input 2",
-            output: "sample output 2",
-            isHidden: true,
-          },
-        ]),
+        publicTestCases: [],
         hints: ["Hint 1", "Hint 2"],
         totalSubmissions: randomInt(1000),
         totalAccepted: randomInt(1000),
