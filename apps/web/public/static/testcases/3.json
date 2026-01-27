@@ -1,0 +1,8 @@
+{
+  "id": 3,
+  "input": {
+    "nums": [3,3],
+    "target": 6
+  },
+  "expectedAnswer": [0,1]
+}
