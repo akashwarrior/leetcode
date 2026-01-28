@@ -48,6 +48,15 @@ export function useExecution({ problemId }: { problemId: string }) {
     } else {
       setIsSubmitting(true);
     }
+    setExecution({
+      status: "QUEUED",
+      attemptCount: 0,
+      errorMessage: null,
+      id: "1",
+      passedTestCases: 0,
+      testCases: [],
+      totalTestCases: 0,
+    });
     try {
       const response = await fetch(url, {
         method: "POST",
@@ -73,6 +82,7 @@ export function useExecution({ problemId }: { problemId: string }) {
       } else {
         setIsSubmitting(false);
       }
+      setExecution(null);
       toast.error(
         error instanceof Error ? error.message : `Unable to ${type} code`,
       );

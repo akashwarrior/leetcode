@@ -37,6 +37,12 @@ export async function GET(req: NextRequest) {
   );
   const take = Math.min(Math.max(1, limitParam), 50);
 
+  const pageParam = Number.parseInt(
+    req.nextUrl.searchParams.get("page") ?? "0",
+    10,
+  );
+  const page = Number.isFinite(pageParam) ? Math.max(0, pageParam) : 0;
+
   const submissions = await prisma.submission.findMany({
     where: {
       problemId,
@@ -45,6 +51,7 @@ export async function GET(req: NextRequest) {
     orderBy: {
       createdAt: "desc",
     },
+    skip: page * take,
     take,
     select: submissionListSelect,
   });

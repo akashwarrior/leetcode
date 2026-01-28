@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "motion/react";
 import { toast } from "sonner";
 import { useSetAtom } from "jotai";
 import { cn } from "@/lib/utils";
@@ -123,6 +124,9 @@ export function SubmissionsTab({ problemId }: SubmissionsTabProps) {
     data: submissions = [],
     error,
     isLoading,
+    isLoadingMore,
+    hasMore,
+    loadMore,
     mutate,
   } = useSubmissions(problemId);
 
@@ -156,7 +160,7 @@ export function SubmissionsTab({ problemId }: SubmissionsTabProps) {
     );
   }
 
-  if (error) {
+  if (error && submissions.length === 0) {
     return (
       <div className="flex items-center justify-center py-12">
         <p className="text-xs text-secondary">Unable to load submissions.</p>
@@ -293,6 +297,29 @@ export function SubmissionsTab({ problemId }: SubmissionsTabProps) {
           </AccordionContent>
         </AccordionItem>
       ))}
+
+      {hasMore && <motion.div onViewportEnter={loadMore} className="h-1" />}
+
+      {isLoadingMore && (
+        <div className="flex items-center justify-center gap-2 py-4 text-xs text-secondary">
+          <Loader2Icon size={13} className="animate-spin" />
+          Loading more submissions...
+        </div>
+      )}
+
+      {error && (
+        <div className="flex items-center justify-center gap-2 py-4">
+          <p className="text-xs text-secondary">
+            Could not load more submissions.
+          </p>
+          <button
+            onClick={() => mutate()}
+            className="text-xs text-primary hover:underline"
+          >
+            Retry
+          </button>
+        </div>
+      )}
     </Accordion>
   );
 }

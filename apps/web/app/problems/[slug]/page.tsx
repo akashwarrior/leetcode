@@ -95,15 +95,13 @@ function ProblemDescription({
         </div>
       </div>
 
-      {problem.tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {problem.tags.map((tag) => (
-            <Badge key={tag.id} variant="secondary">
-              {tag.name}
-            </Badge>
-          ))}
-        </div>
-      )}
+      <div className="flex flex-wrap gap-1.5">
+        {problem.tags.map((tag) => (
+          <Badge key={tag.id} variant="secondary">
+            {tag.name}
+          </Badge>
+        ))}
+      </div>
 
       <Markdown
         remarkPlugins={[remarkMath, remarkGfm]}
@@ -266,6 +264,9 @@ export default async function ProblemPage({
                           key={id}
                           value={id}
                           className="text-xs w-24"
+                          data-results-tab-trigger={
+                            id === "result" ? "true" : undefined
+                          }
                         >
                           {label}
                         </TabsTrigger>
@@ -306,7 +307,14 @@ export default async function ProblemPage({
                 },
                 { id: "hints", icon: LightbulbIcon, label: "Hints" },
               ].map(({ id, icon: Icon, label }) => (
-                <TabsTrigger key={id} value={id} className="text-xs">
+                <TabsTrigger
+                  key={id}
+                  value={id}
+                  className="text-xs"
+                  data-results-tab-trigger={
+                    id === "result" ? "true" : undefined
+                  }
+                >
                   <Icon size={13} />
                   {label}
                 </TabsTrigger>

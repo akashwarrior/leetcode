@@ -38,6 +38,22 @@ export function ProblemHeader({ title, problemId }: ProblemHeaderProps) {
     problemId,
   });
 
+  const openResultTabs = () => {
+    document
+      ?.querySelectorAll<HTMLButtonElement>('[data-results-tab-trigger="true"]')
+      .forEach((trigger) => trigger.click());
+  };
+
+  const handleRunCode = () => {
+    openResultTabs();
+    runCode();
+  };
+
+  const handleSubmitCode = () => {
+    openResultTabs();
+    submitCode();
+  };
+
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card flex py-1.5 items-center justify-between gap-3 px-4 flex-wrap">
       <div className="flex items-center gap-2">
@@ -101,7 +117,7 @@ export function ProblemHeader({ title, problemId }: ProblemHeaderProps) {
           variant="outline"
           className="gap-1.5 rounded-md text-xs"
           disabled={isExecuting || isSubmitting}
-          onClick={runCode}
+          onClick={handleRunCode}
         >
           {isExecuting ? (
             <SpinnerIcon size={12} className="animate-spin" />
@@ -115,7 +131,7 @@ export function ProblemHeader({ title, problemId }: ProblemHeaderProps) {
           size="sm"
           className="gap-1.5 rounded-md text-xs"
           disabled={isSubmitting || isExecuting}
-          onClick={submitCode}
+          onClick={handleSubmitCode}
         >
           {isSubmitting ? (
             <SpinnerIcon size={12} className="animate-spin" />
