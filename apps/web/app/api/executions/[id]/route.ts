@@ -14,11 +14,14 @@ export async function GET(
   const execution = await redisService.get(`executions:${id}`);
 
   if (!execution) {
-    return NextResponse.json({
-      error: "Execution not found",
-    }, {
-      status: 404,
-    });
+    return NextResponse.json(
+      {
+        error: "Execution not found",
+      },
+      {
+        status: 404,
+      },
+    );
   }
 
   return NextResponse.json(JSON.parse(execution));

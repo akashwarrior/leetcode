@@ -10,7 +10,7 @@ class RedisService {
   private readonly client: RedisClientType;
   // '$' start from the message that arrives after the service starts
   // updating id from '$' to last id is required to move sequentially in stream
-  private xReadId: string = '$';
+  private xReadId: string = "$";
 
   constructor() {
     this.client = createClient({
