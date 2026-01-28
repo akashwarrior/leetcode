@@ -8,7 +8,7 @@ type EditorTheme = "dark" | "light" | "system";
 
 export const editorThemeAtom = atomWithStorage<EditorTheme>(
   "editorTheme",
-  "dark",
+  "system",
 );
 export const fontSizeAtom = atomWithStorage<number>("fontSize", 14);
 

@@ -35,12 +35,12 @@ export default async function SettingsPage() {
       </div>
 
       <Tabs defaultValue="profile" className="flex flex-col sm:flex-row! gap-6">
-        <TabsList className="flex flex-row sm:flex-col! gap-1 sm:w-44 h-fit! rounded-lg">
+        <TabsList className="flex flex-row sm:flex-col! gap-1 sm:w-44 h-fit! rounded-lg bg-card">
           {TABS.map((t) => (
             <TabsTrigger
               value={t.id}
               key={t.id}
-              className="flex items-center gap-2.5 text-sm justify-start w-full py-2 rounded-md"
+              className="flex items-center gap-2.5 text-sm justify-start w-full py-2 rounded-md data-active:bg-background!"
             >
               <t.icon size={15} className="text-secondary" />
               {t.label}
